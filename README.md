@@ -21,7 +21,7 @@ This setup is required **once per each HGCal geometry release** to generate and 
 - Output: `raw_detids.csv`
 
 
- ## ✅ Step B & C: Validate and Store HGCal DetIds
+ ## Step B & C: Validate and Store HGCal DetIds
  - Use a dedicated EDProducer in:
   - `CMSSW_15_1_X_2025-07-13-2300`
   - `GeometryExtended2026D110`
