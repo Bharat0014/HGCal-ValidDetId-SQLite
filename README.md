@@ -20,21 +20,6 @@ This setup is required **once per each HGCal geometry release** to generate and 
 - Includes EE, HESilicon, and HEScintillator regions.
 - Output: `raw_detids.csv`
 
-### Step B: Validate DetIds
-- Use a dedicated EDProducer in:
-  - `CMSSW_15_1_X_2025-07-13-2300`
-  - `GeometryExtended2026D110`
-- Validate DetIds based on HGCal geometry.
-- Output: `valid_detids.csv`
-
-### Step C: Store Valid DetIds into Database
-- Read the valid DetIds from the CSV.
-- Store them into a local database:
-  - **Table**: `hgcal_detids_v5`
-  - **27 columns** of features per DetId.
-- Database options:
-  
-  - **Recommended**: SQLite (`.db` file per release)
 
  ## ✅ Step B & C: Validate and Store HGCal DetIds
  - Use a dedicated EDProducer in:
