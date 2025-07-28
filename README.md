@@ -71,7 +71,7 @@ The workflow is split into **Admin Setup (once per CMSSW release)** and **User W
 ---
 
 ## 📁 Folder Structure
-
+'''
 HGCalValidDetId/
 │
 ├── admin/
@@ -91,6 +91,4 @@ HGCalValidDetId/
 │ └── step3_cfg.py
 │
 └── README.md
-
-
-
+'''
