@@ -13,23 +13,30 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
 
 ## 🧰 Admin Workflow (Once per Release)
 
-### Step 1: Generate Raw DetIds
+This setup is required **once per each HGCal geometry release** to generate and store valid DetIds in Sqlite databse.
 
-- A script or producer generates **raw DetIds** based on the HGCal detector definition.
+### Step A: Generate Raw DetIds
+- Produce all possible HGCal `DetId`s (in CSV format).
+- Includes EE, HESilicon, and HEScintillator regions.
 - Output: `raw_detids.csv`
 
-### Step 2: Run EDProducer for Validation
+### Step B: Validate DetIds
+- Use a dedicated EDProducer in:
+  - `CMSSW_15_1_X_2025-07-13-2300`
+  - `GeometryExtended2026D110`
+- Validate DetIds based on HGCal geometry.
+- Output: `valid_detids.csv`
 
-- A custom **EDProducer** is used to validate DetIds for:
-  - `EE` (Electromagnetic Endcap)
-  - `HE Silicon`
-  - `HE Scintillator`
+### Step C: Store Valid DetIds into Database
+- Read the valid DetIds from the CSV.
+- Store them into a local database:
+  - **Table**: `hgcal_detids_v5`
+  - **27 columns** of features per DetId.
+- Database options:
+  - MySQL (tested locally)
+  - **Recommended**: SQLite (`.db` file per release)
 
-### Step 3: Store Valid DetIds
-
-- Validated DetIds are stored into:
-  - `valid_detids.csv`
-  - `valid_detids.sqlite` (SQLite format for fast query access)
+> ⚠️ Steps A, B, and C must be followed **once per HGCal geometry version** to generate the corresponding database.
 
 ---
 
