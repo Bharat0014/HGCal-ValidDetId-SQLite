@@ -1,5 +1,5 @@
 
-# HGCal ValidDetId Validation and PCaloHit Workflow
+#  HGCal DetId Validation, SQLite Database Creation, PCaloHit Workflow, and Visualization
 
 This repository documents the validation and usage of **ValidDetIds** in the High Granularity Calorimeter (HGCal) geometry of CMS. The workflow supports **raw DetId generation**, **validation**, **database storage**, and **SimHit (PCaloHit) creation**, followed by **visualization** using Fireworks.
 
