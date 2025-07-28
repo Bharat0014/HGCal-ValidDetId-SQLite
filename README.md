@@ -16,7 +16,7 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
 This setup is required **once per each HGCal geometry release** to generate and store valid DetIds in Sqlite databse.
 
 ### Step A: Generate Raw DetIds
-- Produce all possible HGCal `DetId`s (in CSV format).
+- Produce all possible HGCal `DetIds` (in CSV format).
 - Includes EE, HESilicon, and HEScintillator regions.
 - Output: `raw_detids.csv`
 
@@ -33,8 +33,37 @@ This setup is required **once per each HGCal geometry release** to generate and 
   - **Table**: `hgcal_detids_v5`
   - **27 columns** of features per DetId.
 - Database options:
-  - MySQL (tested locally)
+  
   - **Recommended**: SQLite (`.db` file per release)
+
+ ## ✅ Step B & C: Validate and Store HGCal DetIds
+ - Use a dedicated EDProducer in:
+  - `CMSSW_15_1_X_2025-07-13-2300`
+  - `GeometryExtended2026D110`
+- Validate DetIds based on HGCal geometry.
+
+- **Stores DetIds** and their features in:
+  - A `.csv` file for easy inspection
+  - A `.sqlite` database for efficient querying
+
+### 📂 Output Files
+
+| File                | Description                          |
+|---------------------|--------------------------------------|
+| `valid_detids.csv`  | List of valid DetIds (27 columns)    |
+| `valid_detids.sqlite` | SQLite DB containing DetId table     |
+
+### 🧾 Database Info
+
+- **Table**: `hgcal_detids_v5`
+- **Columns**: 27 columns per DetId, including:
+  - Detector layer
+  - Module type
+  - Cell info
+  - Wafer type
+  - Global x/y/z position
+  - Geometry region identifiers, etc.
+
 
 > ⚠️ Steps A, B, and C must be followed **once per HGCal geometry version** to generate the corresponding database.
 
