@@ -7,7 +7,7 @@ This repository documents the validation and usage of **ValidDetIds** in the Hig
 
 ## 📌 Overview
 
-The workflow is split into **Admin Setup (once per CMSSW release)** and **User Workflow**.
+The workflow is split into **Admin Setup (once per Geometery release)** and **User Workflow**.
 
 ---
 
