@@ -51,7 +51,7 @@ This setup is required **once per each HGCal geometry release** to generate and 
 | File                | Description                          |
 |---------------------|--------------------------------------|
 | `valid_detids.csv`  | List of valid DetIds (27 columns)    |
-| `valid_detids.sqlite` | SQLite DB containing DetId table     |
+| `valid_detids.db` | SQLite DB containing DetId table     |
 
 ### 🧾 Database Info
 
