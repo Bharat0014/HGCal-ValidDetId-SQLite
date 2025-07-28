@@ -92,3 +92,24 @@ HGCalValidDetId/
 │
 └── README.md
 '''
+
+
+
+---
+
+## 💡 Future Work
+
+- Extend support for additional detector versions or eras.
+- Automate DetId generation and validation via CI scripts.
+- Add web interface for visualizing DetId distributions layer-wise.
+
+---
+
+## 📬 Contact
+
+For questions or contributions, feel free to open an issue or pull request.
+
+Maintainer: **Bharat Kumar Sirasva**, IISER Mohali
+
+---
+
