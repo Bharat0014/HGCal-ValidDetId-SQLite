@@ -71,27 +71,27 @@ The workflow is split into **Admin Setup (once per CMSSW release)** and **User W
 ---
 
 ## 📁 Folder Structure
-'''
+```
 HGCalValidDetId/
 │
 ├── admin/
-│ ├── raw_detid_generator.py
-│ ├── detid_validator_producer.cc
-│ ├── valid_detids.csv
-│ └── valid_detids.sqlite
+│   ├── raw_detid_generator.py
+│   ├── detid_validator_producer.cc
+│   ├── valid_detids.csv
+│   └── valid_detids.sqlite
 │
 ├── user/
-│ ├── detid_query_tool.py
-│ ├── filtered_detids.csv
-│ └── pcalohit_producer.cc
+│   ├── detid_query_tool.py
+│   ├── filtered_detids.csv
+│   └── pcalohit_producer.cc
 │
 ├── config/
-│ ├── step1_cfg.py
-│ ├── step2_cfg.py
-│ └── step3_cfg.py
+│   ├── step1_cfg.py
+│   ├── step2_cfg.py
+│   └── step3_cfg.py
 │
 └── README.md
-'''
+```
 
 
 
