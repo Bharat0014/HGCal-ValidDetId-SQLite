@@ -54,6 +54,68 @@ This setup is required **once per each HGCal geometry release** to generate and 
 
 ---
 
+## 🧱 Step A: DetId Definition and Raw CSV Creation (Pre-validation)
+
+This step generates **all possible raw DetIds** for HGCal geometry before applying any validation.
+
+### 📥 Input
+- Raw DetIds in **CSV format**
+- DetIds cover all valid configurations in HGCal geometry
+
+### 🔢 Total Number of Raw DetIds (Before Validation)
+
+| Subdetector      | Count        |
+|------------------|--------------|
+| EE (Electromagnetic Endcap)        | 67,837,952   |
+| HE Silicon (Hadronic Endcap - Silicon) | 54,792,192   |
+| HE Scintillator (Hadronic Endcap - Scintillator) | 7,660,814    |
+
+These DetIds are generated programmatically and **span all layers**, **module types**, and **wafer configurations** supported in the CMSSW geometry. The next step is to pass them through the validation producer to filter only those compatible with the current release geometry.
+
+---
+
+### 🧬 DetId Bit-Level Definition
+
+#### 📘 EE & HESilicon
+
+| Parameter         | Bit Position | Bit Length | Value Range                                         |
+|------------------|--------------|------------|-----------------------------------------------------|
+| Detector Type     | 28–31        | 4 bits     | 8 (EE Silicon), 9 (HE Silicon)                      |
+| Wafer Type        | 26–27        | 2 bits     | 0, 1, 2, 3                                          |
+| Z Side            | 25           | 1 bit      | 0 (for +z), 1 (for –z)                              |
+| Layer Number      | 20–24        | 5 bits     | 1–26 (for DetType 8), 1–21 (for DetType 9)          |
+| Sign of v         | 19           | 1 bit      | 0 (+v), 1 (–v)                                      |
+| Absolute v        | 15–18        | 4 bits     | 0 to 13                                             |
+| Sign of u         | 14           | 1 bit      | 0 (+u), 1 (–u)                                      |
+| Absolute u        | 10–13        | 4 bits     | 0 to 13                                             |
+| v-coordinate      | 5–9          | 5 bits     | Varies by wafer type and index                      |
+| u-coordinate      | 0–4          | 5 bits     | Varies by wafer type and index                      |
+
+#### 📘 HE Scintillator
+
+| Parameter           | Bit Position | Bit Length | Value Range                     |
+|--------------------|--------------|------------|---------------------------------|
+| Detector Type       | 28–31        | 4 bits     | 10 (HGCalHSc = 1010)            |
+| Tile Type           | 26–27        | 2 bits     | 1 (type "c"), 2 (type "m")      |
+| Z Side              | 25           | 1 bit      | 0 for +z, 1 for –z              |
+| Granularity         | 24–24        | 1 bit      | 0 (normal), 1 (fine)            |
+| SiPM Type           | 23–23        | 1 bit      | 0 (small), 1 (large)            |
+| Trigger/Detector Cell | 22–22      | 1 bit      | 0 (Detector), 1 (Trigger)       |
+| Layer Number        | 17–21        | 5 bits     | 8 to 21                         |
+| Ring Index          | 9–16         | 8 bits     | 11 to 50                        |
+| iPhi Index          | 0–8          | 9 bits     | 0 to 380                        |
+
+---
+
+### 🧰 Output (from Step A)
+- `raw_detids.csv`: Contains all generated DetIds before validation.
+- Used as **input** for validation and database creation in Step B.
+
+---
+
+📌 **Note**: These raw DetIds are NOT guaranteed to be valid — they include every logically possible configuration. The validation logic filters out only those consistent with the current detector geometry.
+
+
 ## 👤 User Workflow
 
 ### Step 1: Use the Provided SQLite DB
