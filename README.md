@@ -115,6 +115,66 @@ These DetIds are generated programmatically and **span all layers**, **module ty
 
 📌 **Note**: These raw DetIds are NOT guaranteed to be valid — they include every logically possible configuration. The validation logic filters out only those consistent with the current detector geometry.
 
+## ✅ Step B: DetId Validation (Once Per Release)
+
+This step filters the raw DetIds generated in Step A, validating them against the current **HGCal geometry** using CMSSW.
+
+---
+
+### 🛠️ DetId Validation Process
+
+- **CMSSW Version**: `CMSSW_15_1_X_2025-07-13-2300`
+- **Geometry**: `GeometryExtendedRun4D110`
+- Uses a custom **EDProducer** to:
+  - Validate each DetId with HGCal geometry.
+  - Discard DetIds that are inconsistent with current geometry.
+  - Ensure layer, wafer, position, and cell configurations are physically valid.
+
+---
+
+### 📈 Output
+
+- `valid_detids.csv`: List of DetIds that pass geometry validation.
+- Total number of valid DetIds: `6,083,940`
+
+---
+
+### 📏 DetId Parameter Ranges After Validation
+
+#### 🟩 EE & HE Silicon Validated Ranges
+
+| Parameter        | Bit Position | Bit Length | Value Range                                       |
+|------------------|--------------|------------|--------------------------------------------------|
+| Detector Type     | 28–31        | 4 bits     | 8 (EE Silicon), 9 (HE Silicon)                   |
+| Wafer Type        | 26–27        | 2 bits     | 0, 1, 2                                          |
+| Z Side            | 25           | 1 bit      | 0 (+z), 1 (–z)                                   |
+| Layer Number      | 20–24        | 5 bits     | 1–26 (DetType 8), 1–21 (DetType 9)               |
+| Sign of v         | 19           | 1 bit      | 0 (+v), 1 (–v)                                   |
+| Absolute v        | 15–18        | 4 bits     | 0 to 13                                          |
+| Sign of u         | 14           | 1 bit      | 0 (+u), 1 (–u)                                   |
+| Absolute u        | 10–13        | 4 bits     | 0 to 13                                          |
+| v-coordinate      | 5–9          | 5 bits     | 0 to 23 (HD wafer 0)                             |
+| u-coordinate      | 0–4          | 5 bits     | 0 to 23 (HD wafer 0)                             |
+
+#### 🟨 HE Scintillator Validated Ranges
+
+| Parameter           | Bit Position | Bit Length | Value Range                     |
+|--------------------|--------------|------------|---------------------------------|
+| Detector Type       | 28–31        | 4 bits     | 10 (HGCalHSc = 1010)            |
+| Tile Type           | 26–27        | 2 bits     | 1 (type "c"), 2 (type "m")      |
+| Z Side              | 25           | 1 bit      | 0 for +z, 1 for –z              |
+| Granularity         | 24–24        | 1 bit      | 0 (normal)                      |
+| SiPM Type           | 23–23        | 1 bit      | 0 (small), 1 (large)            |
+| Trigger/Detector    | 22–22        | 1 bit      | 0 (Detector)                    |
+| Layer Number        | 17–21        | 5 bits     | 8 to 21                         |
+| Ring Index          | 9–16         | 8 bits     | 1 to 42                         |
+| iPhi Index          | 0–8          | 9 bits     | 1 to 288                        |
+
+---
+
+📌 **Note**: This validated DetId list becomes the trusted input for generating the `.db` database in **Step C**.
+
+
 
 ## 👤 User Workflow
 
