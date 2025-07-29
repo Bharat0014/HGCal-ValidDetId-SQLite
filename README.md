@@ -115,9 +115,9 @@ These DetIds are generated programmatically and **span all layers**, **module ty
 
 📌 **Note**: These raw DetIds are NOT guaranteed to be valid — they include every logically possible configuration. The validation logic filters out only those consistent with the current detector geometry.
 
-## ✅ Step B: DetId Validation (Once Per Release)
+## ✅ Step B: DetId Validation and Database Generation (Once Per Release)
 
-This step filters the raw DetIds generated in Step A, validating them against the current **HGCal geometry** using CMSSW.
+This step validates DetIds generated in **Step A** using the latest **HGCal geometry**, and produces both a validated CSV file and a corresponding SQLite `.db` file.
 
 ---
 
@@ -125,17 +125,28 @@ This step filters the raw DetIds generated in Step A, validating them against th
 
 - **CMSSW Version**: `CMSSW_15_1_0_pre4`
 - **Geometry**: `GeometryExtendedRun4D110`
-- Uses a custom **EDProducer** to:
-  - Validate each DetId with HGCal geometry.
-  - Discard DetIds that are inconsistent with current geometry.
-  - Ensure layer, wafer, position, and cell configurations are physically valid.
+- Validation is performed via a custom **EDProducer** that:
+  - Checks each DetId against the geometry using HGCal-specific rules.
+  - Ensures valid combinations of wafer, layer, cell, and positioning.
+  - Filters out invalid DetIds and only retains those that comply.
 
 ---
 
-### 📈 Output
+### 📤 Output Artifacts
 
-- `valid_detids.csv`: List of DetIds that pass geometry validation.
-- Total number of valid DetIds: `6,083,940`
+After successful validation, this step produces:
+
+- ✅ `valid_detids.csv` — List of all validated and accepted DetIds
+- ✅ `valid_detids.db` — SQLite database (produced via CMSSW tools or custom DB writer module)
+
+These outputs are automatically saved when running the producer, and are used as trusted inputs for downstream modules, simulations, or analysis.
+
+---
+
+### 📊 Total Validated DetIds
+
+- **EE + HESilicon + HEScintillator** combined:
+  - `6,083,940` DetIds passed all geometry checks
 
 ---
 
@@ -172,7 +183,10 @@ This step filters the raw DetIds generated in Step A, validating them against th
 
 ---
 
-📌 **Note**: This validated DetId list becomes the trusted input for generating the `.db` database in **Step C**.
+📌 **Note**:  
+This `.csv` and `.db` file pair will be used in later steps (e.g., during simulation, digitization, or analysis). No manual intervention is required for DB generation — it is handled by the same producer that performs the DetId validation.
+
+
 
 
 
