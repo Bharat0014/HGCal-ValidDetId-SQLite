@@ -123,7 +123,7 @@ This step filters the raw DetIds generated in Step A, validating them against th
 
 ### 🛠️ DetId Validation Process
 
-- **CMSSW Version**: `CMSSW_15_1_X_2025-07-13-2300`
+- **CMSSW Version**: `CMSSW_15_1_0_pre4`
 - **Geometry**: `GeometryExtendedRun4D110`
 - Uses a custom **EDProducer** to:
   - Validate each DetId with HGCal geometry.
