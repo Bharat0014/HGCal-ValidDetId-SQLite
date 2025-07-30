@@ -262,40 +262,39 @@ Enter your SQL WHERE condition using AND / OR / BETWEEN, etc.
 Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15
 >> 
 ```
-**File output**
+**File output** :  valid_detids.csv
 - Users extract specific DetIds and export to CSV.
-- Output CSV format: valid_detids.csv
+- Output CSV format
   - `DetId`, `NLayer`, `DetType`
 
 
 
-### Step 2. Development of SimHit Producer
-A specialized producer was implemented to:
-- Process raw SimHit data.
-- Convert RawHits(DetIds) into `pCaloHits`.
-- Store intermediate results in `step1.root` for validation and subsequent processing.
+### 🚀 Step 2: Development of SimHit Producer
 
-#### Step1.root Generation
-- The `HGCalRawProducer.cc` code, available in the `plugins` folder, is used for generating the `step1.root` file.
-- The corresponding configuration file, `HGCalRawProducer_cfi.py`, is located in the `python` folder.
-- You must specify the input raw DetIDs file in the configuration file to run the process.
+In this step, we introduce a **custom CMSSW EDProducer** designed specifically to handle raw SimHit data using validated DetIds. The purpose of this module is to simulate calorimeter hits (`pCaloHits`) based on raw inputs (such as hit positions, energy, and time), and link them correctly to the detector geometry using validated DetIds. This is an essential step in preparing realistic data for detector studies and performance validation.
 
-#### Workflow
-1. **Input CSV File**: The process begins with a CSV file containing the required Det_type and DetID and information. This file serves as the input for the producer.
-2. **Populating g4SimHits**: The producer generates all the necessary `g4SimHits` branches. However, only the relevant branches—`HGCHitsEE`, `HGCHitsHEback`, and `HGCHitsHEfront`—are populated with data, while the rest remain empty.
-3. **Additional Branches**: 
-   - Additional branches such as `HEPMCProducer` and `genProduct` are created using a **Pythia8 generator**, defined in the configuration file.
-   - The Pythia8 generator ensures that all required branches are present in the `step1.root` file without interfering with the data filled by the producer.
+The producer processes the raw hit information, maps each hit to a corresponding **validated DetId**, and writes the output into a file called **`step1.root`**. This file contains all relevant information such as energy, time, and detector ID for each hit, and is formatted for easy use in the next step of the simulation chain.
 
+---
 
-**Usage** 
+### 🧩 Components Involved
+
+- **Producer Code**: `HGCalRawProducer.cc`  
+  Located in the `plugins` directory, this C++ source defines the logic for converting raw hits into `pCaloHits`.
+
+- **Configuration File**: `HGCalRawProducer_cfi.py`  
+  Found in the `python` directory, this file configures the producer for CMSSW execution. You must specify the path to your raw DetId input CSV here.
+
+---
+
+### ⚙️ How to Run
+
+To run the producer and generate `step1.root`, follow these steps:
+
 ```
-cd HGCalDetIDvalidation/python
+cd User/HGCalDetIDvalidation/python
 cmsRun HGCalRawProducer_cfi.py
 ```
-
-Using this method, the `step1.root` file is generated successfully, with all necessary branches in place. When this file is used as input for the step2 process, it works without any errors or conflicts.
-
 
 ## 3. Multi-Step Processing Pipeline
 The raw data processing involves the following steps:
