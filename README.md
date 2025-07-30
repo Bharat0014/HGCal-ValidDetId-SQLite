@@ -96,7 +96,6 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 **Usage**  
 ```
 python3 DetIDEE_HElayers.py
-
 ```
 The script creates every valid combination of these values for both silicon-based and scintillator-based detectors. Once all combinations are generated, it saves the entire list into a CSV file called `detid_list_all_combinations.csv`. This file acts as a raw inventory of possible detector elements, which can then be used for further validation or detector studies.
 
@@ -117,13 +116,12 @@ These DetIds are generated programmatically and **span all layers**, **module ty
 - `detid_list_all_combinations.csv`: Contains all generated DetIds before validation.
 - Used as **input** for validation and database creation in Step B.
 
----
 
 📌 **Note**: These raw DetIds are NOT guaranteed to be valid — they include every logically possible configuration. The validation logic filters out only those consistent with the current detector geometry.
 
 ---
 
-## ✅ Step B: DetId Validation and Database Generation (Once Per Release)
+##  Step B: 🔍📊 DetId Validation and Database Generation (Once Per Release)
 
 This step validates DetIds generated in **Step A** using the latest **HGCal geometry**, and produces both a validated CSV file and a corresponding SQLite `.db` file.
 
