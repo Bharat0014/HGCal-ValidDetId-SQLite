@@ -12,7 +12,8 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
 ---
 
 ---
-## Step 0 : for Admin And User Both
+## Step 0 : For Admin And User Both
+
 ### 1. Set Up the CMSSW Environment
 First, ensure you are using the correct CMSSW version. Set up the environment as follows:
 
@@ -45,44 +46,7 @@ scram b -j8
 
 ## 🧰 Admin Workflow (Once per Release)
 
-This setup is required **once per each HGCal geometry release** to generate and store valid DetIds in Sqlite databse.
-
-### Step A: Generate Raw DetIds
-- Produce all possible HGCal `DetIds` (in CSV format).
-- Includes EE, HESilicon, and HEScintillator regions.
-- Output: `raw_detids.csv`
-
-
- ## Step B & C: Validate and Store HGCal DetIds
- - Use a dedicated EDProducer in:
-  - `CMSSW_15_1_X_2025-07-13-2300`
-  - `GeometryExtended2026D110`
-- Validate DetIds based on HGCal geometry.
-
-- **Stores DetIds** and their features in:
-  - A `.csv` file for easy inspection
-  - A `.sqlite` database for efficient querying
-
-### 📂 Output Files
-
-| File                | Description                          |
-|---------------------|--------------------------------------|
-| `valid_detids.csv`  | List of valid DetIds (27 columns)    |
-| `valid_detids.db` | SQLite DB containing DetId table     |
-
-### 🧾 Database Info
-
-- **Table**: `hgcal_detids_v5`
-- **Columns**: 27 columns per DetId, including:
-  - Detector layer
-  - Module type
-  - Cell info
-  - Wafer type
-  - Global x/y/z position
-  - Geometry region identifiers, etc.
-
-
-> ⚠️ Steps A, B, and C must be followed **once per HGCal geometry version** to generate the corresponding database.
+This setup is required **once per each HGCal geometry release** to validate and store valid DetIds in Sqlite databse.
 
 ---
 
@@ -90,23 +54,13 @@ This setup is required **once per each HGCal geometry release** to generate and 
 
 This step generates **all possible raw DetIds** for HGCal geometry before applying any validation.
 
-### 📥 Input
-- Raw DetIds in **CSV format**
-- DetIds cover all valid configurations in HGCal geometry
-
-### 🔢 Total Number of Raw DetIds (Before Validation)
-
-| Subdetector      | Count        |
-|------------------|--------------|
-| EE (Electromagnetic Endcap)        | 67,837,952   |
-| HE Silicon (Hadronic Endcap - Silicon) | 54,792,192   |
-| HE Scintillator (Hadronic Endcap - Scintillator) | 7,660,814    |
-
-These DetIds are generated programmatically and **span all layers**, **module types**, and **wafer configurations** supported in the CMSSW geometry. The next step is to pass them through the validation producer to filter only those compatible with the current release geometry.
-
 ---
 
-### 🧬 DetId Bit-Level Definition
+###  DetId Bit-Level Definition
+
+In this step, we create a complete list of all possible DetIds for the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables below. Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location before checking if they are valid. These tables follow the official HGCal DetId format and will be used in the next step to check the IDs against the actual detector layout.
+
+
 
 #### 📘 EE & HESilicon
 
@@ -139,8 +93,28 @@ These DetIds are generated programmatically and **span all layers**, **module ty
 
 ---
 
+**Usage**  
+```
+python3 DetIDEE_HElayers.py
+
+```
+The script creates every valid combination of these values for both silicon-based and scintillator-based detectors. Once all combinations are generated, it saves the entire list into a CSV file called `detid_list_all_combinations.csv`. This file acts as a raw inventory of possible detector elements, which can then be used for further validation or detector studies.
+
+By running this script, we ensure that no detector configuration is missed in the initial setup phase.
+
+### 🔢 Total Number of Raw DetIds (Before Validation)
+
+| Subdetector      | Count        |
+|------------------|--------------|
+| EE (Electromagnetic Endcap)        | 67,837,952   |
+| HE Silicon (Hadronic Endcap - Silicon) | 54,792,192   |
+| HE Scintillator (Hadronic Endcap - Scintillator) | 7,660,814    |
+
+These DetIds are generated programmatically and **span all layers**, **module types**, and **wafer configurations** supported in the CMSSW geometry. The next step is to pass them through the validation producer to filter only those compatible with the current release geometry.
+
+
 ### 🧰 Output (from Step A)
-- `raw_detids.csv`: Contains all generated DetIds before validation.
+- `detid_list_all_combinations.csv`: Contains all generated DetIds before validation.
 - Used as **input** for validation and database creation in Step B.
 
 ---
