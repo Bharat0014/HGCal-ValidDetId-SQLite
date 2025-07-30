@@ -155,16 +155,16 @@ These outputs are automatically saved when running the producer, and are used as
 
 ---
 
-### 📊 Total Validated DetIds
+#### 📊 Total Validated DetIds
 
 - **EE + HESilicon + HEScintillator** combined:
   - `6,083,940` DetIds passed all geometry checks
 
 ---
 
-### 📏 DetId Parameter Ranges After Validation
+#### DetId Parameter Ranges After Validation
 
-#### 🟩 EE & HE Silicon Validated Ranges
+##### 🟩 EE & HE Silicon Validated Ranges
 
 | Parameter        | Bit Position | Bit Length | Value Range                                       |
 |------------------|--------------|------------|--------------------------------------------------|
@@ -179,7 +179,7 @@ These outputs are automatically saved when running the producer, and are used as
 | v-coordinate      | 5–9          | 5 bits     | 0 to 23 (HD wafer 0)                             |
 | u-coordinate      | 0–4          | 5 bits     | 0 to 23 (HD wafer 0)                             |
 
-#### 🟨 HE Scintillator Validated Ranges
+##### 🟩 HE Scintillator Validated Ranges
 
 | Parameter           | Bit Position | Bit Length | Value Range                     |
 |--------------------|--------------|------------|---------------------------------|
