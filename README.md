@@ -324,7 +324,7 @@ The raw SimHit data undergoes a multi-step processing pipeline to progressively 
     --filein file:updatedstep1.root \
     --fileout file:step2.root \
     --nThreads 4 > step2.log 2>&1
-### ✅ Step 3: `step3.root`
+#### ✅ Step 3: `step3.root`
 
 **Purpose**:  
 Performs full reconstruction (`RECO`), Physics Analysis Toolkit (`PAT`) processing, and complete validation including **Data Quality Monitoring (DQM)**. This is the final step that transforms simulated detector output into high-level physics objects ready for analysis.
@@ -346,30 +346,29 @@ cmsDriver.py step3 \
   --fileout file:step3.root > step3.log 2>&1
 ```
 
-## 4. Visualization with Fireworks
+### 🎆 Step 4: Visualization with Fireworks
 
-The Fireworks visualization tool was configured to:  
+**Purpose**:  
+This step allows users to visually inspect the simulated detector hits and validated DetIds using the **Fireworks** event display tool in CMSSW. It helps confirm that hits are correctly mapped to the detector geometry and provides a powerful way to debug or showcase events.
 
-#### Steps to Visualize Raw DetIDs
-1. **Generate the Geometry File**:
-   - Use the following command to create a geometry file for the 2026 tag D110 configuration:  
+---
 
-     **Usage** 
-     ```
-     cd $CMSSW/src
-     cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=2026 version=D110
-     ```
-   - This command generates the geometry file: `cmsSimGeom-2026D110.root`.
+#### 🧭 Steps to Visualize Raw DetIDs
 
-2. **Run Fireworks for Visualization**:
-   - Use the generated geometry file and the `step3.root` file to visualize the DetIDs:  
+1. **Generate the Geometry File**  
+   Use the following command to create a detector geometry file compatible with Fireworks, based on the 2026 D110 configuration:
 
-     **Usage** 
-     ```
-     cmsShow --sim-geom-file cmsSimGeom-2026D110.root step3.root
-     ```
+   ```bash
+   cd $CMSSW/src
+   cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=2026 version=D110
+2. **Run Fireworks for Visualization**
 
-This process enables an interactive and detailed inspection of raw DetIDs, ensuring accuracy in the data processing workflow.
+Use the generated geometry file along with your simulation output (`step3.root`) to launch the Fireworks GUI and visualize the raw `DetId`s.
+
+#### 📌 Command:
+
+```bash
+cmsShow --sim-geom-file cmsSimGeom-2026D110.root step3.root
 
 
 ---
@@ -396,15 +395,6 @@ HGCalValidDetId/
 └── README.md
 ```
 
-
-
----
-
-## 💡 Future Work
-
-- Extend support for additional detector versions or eras.
-- Automate DetId generation and validation via CI scripts.
-- Add web interface for visualizing DetId distributions layer-wise.
 
 ---
 
