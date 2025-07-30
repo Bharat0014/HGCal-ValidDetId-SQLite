@@ -7,12 +7,12 @@ This repository documents the validation and usage of **ValidDetIds** in the Hig
 
 ## 📌 Overview
 
-The workflow is split into **Admin Setup (once per Geometery release)** and **User Workflow**.
+The workflow is split into **Admin Setup (once per Geometery release)** and **User Workflow**. 
 
 ---
 
 ---
-
+## Step 0 : for Admin And User Both
 ### 1. Set Up the CMSSW Environment
 First, ensure you are using the correct CMSSW version. Set up the environment as follows:
 
@@ -41,6 +41,7 @@ git clone https:
 scram b -j8
 
 ```
+
 
 ## 🧰 Admin Workflow (Once per Release)
 
