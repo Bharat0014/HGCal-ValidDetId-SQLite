@@ -50,13 +50,13 @@ This setup is required **once per each HGCal geometry release** to validate and 
 
 ---
 
-## 🧱 Step A: DetId Definition and Raw CSV Creation (Pre-validation)
+### 🧱 Step A: DetId Definition and Raw CSV Creation (Pre-validation)
 
 This step generates **all possible raw DetIds** for HGCal geometry before applying any validation.
 
 ---
 
-###  DetId Bit-Level Definition
+####  DetId Bit-Level Definition
 
 In this step, we create a complete list of all possible DetIds for the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables below. Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location before checking if they are valid. These tables follow the official HGCal DetId format and will be used in the next step to check the IDs against the actual detector layout.
 
@@ -102,7 +102,7 @@ The script creates every valid combination of these values for both silicon-base
 
 By running this script, we ensure that no detector configuration is missed in the initial setup phase.
 
-### 🔢 Total Number of Raw DetIds (Before Validation)
+#### 🔢 Total Number of Raw DetIds (Before Validation)
 
 | Subdetector      | Count        |
 |------------------|--------------|
@@ -113,13 +113,15 @@ By running this script, we ensure that no detector configuration is missed in th
 These DetIds are generated programmatically and **span all layers**, **module types**, and **wafer configurations** supported in the CMSSW geometry. The next step is to pass them through the validation producer to filter only those compatible with the current release geometry.
 
 
-### 🧰 Output (from Step A)
+#### 🧰 Output (from Step A)
 - `detid_list_all_combinations.csv`: Contains all generated DetIds before validation.
 - Used as **input** for validation and database creation in Step B.
 
 ---
 
 📌 **Note**: These raw DetIds are NOT guaranteed to be valid — they include every logically possible configuration. The validation logic filters out only those consistent with the current detector geometry.
+
+---
 
 ## ✅ Step B: DetId Validation and Database Generation (Once Per Release)
 
