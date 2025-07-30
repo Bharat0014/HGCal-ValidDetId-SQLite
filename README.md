@@ -11,6 +11,37 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
 
 ---
 
+---
+
+### 1. Set Up the CMSSW Environment
+First, ensure you are using the correct CMSSW version. Set up the environment as follows:
+
+```
+# Load the CMSSW version
+cd /path/to/your/working/directory
+cmsrel CMSSW_14_1_0_pre2
+cd CMSSW_14_1_0_pre2/src
+cmsenv
+```
+
+### 2. Unpack necessary Package for HGcal Geometery
+```
+git cms-addpkg Geometry/CMSCommonData
+git cms-addpkg Configuration/Geometry
+git cms-addpkg Geometry/HGCalCommonData
+git cms-addpkg Geometry/HGCalGeometry
+git cms-addpkg Geometry/Records
+git cms-addpkg Fireworks
+
+```
+
+### 3. Git clone this repo.
+```
+git clone https://github.com/Bharat0014/HGCalDetIDvalidation.git
+scram b -j8
+
+```
+
 ## 🧰 Admin Workflow (Once per Release)
 
 This setup is required **once per each HGCal geometry release** to generate and store valid DetIds in Sqlite databse.
