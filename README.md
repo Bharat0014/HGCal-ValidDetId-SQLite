@@ -121,9 +121,9 @@ These DetIds are generated programmatically and **span all layers**, **module ty
 
 ---
 
-##  Step B: 🔍📊 DetId Validation and Database Generation (Once Per Release)
+###  Step B: 🔍📊 DetId Validation and Database Generation (Once Per Release)
 
-This step validates DetIds generated in **Step A** using the latest **HGCal geometry**, and produces both a validated CSV file and a corresponding SQLite `.db` file.
+In this step, we take the list of all possible DetIds created earlier and check which ones are actually valid in the current HGCal detector design. This is important because not every combination of numbers represents a real or physically allowed part of the detector. Using the latest detector geometry, we carefully go through each DetId and keep only those that match the layout and structure of the real detector. The valid DetIds are then saved in two formats: a CSV file for easy viewing and an SQLite database file for use in software tools or analysis. This ensures we are working only with meaningful, accurate detector IDs in the next steps.
 
 ---
 
