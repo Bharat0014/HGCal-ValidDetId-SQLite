@@ -361,6 +361,9 @@ This step allows users to visually inspect the simulated detector hits and valid
    ```bash
    cd $CMSSW/src
    cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=2026 version=D110
+
+- This command generates the geometry file: cmsSimGeom-2026D110.root.
+
 2. **Run Fireworks for Visualization**
 
 Use the generated geometry file along with your simulation output (`step3.root`) to launch the Fireworks GUI and visualize the raw `DetId`s.
