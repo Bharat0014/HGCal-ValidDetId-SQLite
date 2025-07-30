@@ -203,7 +203,7 @@ This `.csv` and `.db` file pair will be used in later steps (e.g., during simula
 ---
 
 ## 👤 User Workflow
----
+
 
 The User Workflow outlines how users interact with the DetId validation framework and make use of the generated resources in their own studies or applications. The main purpose of this workflow is to make the validated DetId information easily accessible and usable, especially for those developing detector-level simulations, analysis tools, or reconstruction algorithms. Users begin by working with the precomputed SQLite database (valid_detids.db), which contains only the DetIds that have been confirmed to be valid according to the latest HGCal geometry. By running simple SQL queries, users can extract specific sets of DetIds—such as those corresponding to a particular layer, detector type, or region—and export the results into a CSV file for further use.
 
@@ -213,13 +213,63 @@ In the next stage, a custom SimHit producer takes over. This producer reads the 
 ### Step 1: Use the Provided SQLite DB and Run Queries 
 
 - Users can query the precomputed `valid_detids.db` database for required DetIds.
+
+**Usage**  
+```
+cd User/python
+python3 sqliteuser.py
+```
+
+---
+#### 📤 Output
+**Terminal output**
+```
+📦 Available tables:
+1: hgcal_detids_v5
+
+Enter the number of the table to use: 1
+
+🧾 Available columns:
+- DetId
+- Zside
+- DetType
+- Nlayer
+- LayerType
+- FrontBack
+- WaferType
+- WaferIndex
+- PartType
+- Cassette
+- CassetteType
+- Orient
+- AbsU
+- AbsV
+- CellU
+- CellV
+- x
+- y
+- z
+- TileType
+- SipmType
+- TriggerCell
+- RingIndex
+- IphiIndex
+- Granularity
+- eta
+- phi
+
+Enter your SQL WHERE condition using AND / OR / BETWEEN, etc.
+Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15
+>> 
+```
+**File output**
 - Users extract specific DetIds and export to CSV.
-- Output CSV format:
+- Output CSV format: valid_detids.csv
   - `DetId`, `NLayer`, `DetType`
 
 
 
-## 2. Development of SimHit Producer
+### Step 2. Development of SimHit Producer
 A specialized producer was implemented to:
 - Process raw SimHit data.
 - Convert RawHits(DetIds) into `pCaloHits`.
