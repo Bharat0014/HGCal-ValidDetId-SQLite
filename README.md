@@ -200,9 +200,15 @@ This `.csv` and `.db` file pair will be used in later steps (e.g., during simula
 
 
 
-
+---
 
 ## 👤 User Workflow
+---
+
+The User Workflow outlines how users interact with the DetId validation framework and make use of the generated resources in their own studies or applications. The main purpose of this workflow is to make the validated DetId information easily accessible and usable, especially for those developing detector-level simulations, analysis tools, or reconstruction algorithms. Users begin by working with the precomputed SQLite database (valid_detids.db), which contains only the DetIds that have been confirmed to be valid according to the latest HGCal geometry. By running simple SQL queries, users can extract specific sets of DetIds—such as those corresponding to a particular layer, detector type, or region—and export the results into a CSV file for further use.
+
+In the next stage, a custom SimHit producer takes over. This producer reads the raw SimHit data, uses the validated DetIds to map them correctly, and transforms them into a standardized format called pCaloHits. These hits carry energy, position, and timing information that can be used in downstream validation and reconstruction steps. The processed data is stored in an output file named step1.root, which acts as an intermediate checkpoint for quality checks, visualization, and future simulation tasks. This two-step workflow—starting with DetId extraction and followed by hit processing—ensures accuracy, reproducibility, and flexibility in working with HGCal simulation data.
+
 
 ### Step 1: Use the Provided SQLite DB and Run Queries 
 
