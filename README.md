@@ -223,24 +223,25 @@ This `.csv` and `.db` file pair will be used in later steps (e.g., during simula
 
 ## 👤 User Workflow
 
-### Step 1: Use the Provided SQLite DB
+### Step 1: Use the Provided SQLite DB and Run Queries 
 
-- Users can query the precomputed `valid_detids.sqlite` database for required DetIds.
-
-### Step 2: Run Queries
-
+- Users can query the precomputed `valid_detids.db` database for required DetIds.
 - Users extract specific DetIds and export to CSV.
 - Output CSV format:
   - `DetId`, `NLayer`, `DetType`
 
-### Step 3: Feed to Producer for SimHit Generation
+
+
+### Step 2: Feed to Producer for SimHit Generation
 
 - This CSV is fed into a separate **SimHit producer** to fill `PCaloHit` for:
   - `EE`
   - `HE Silicon`
   - `HE Scintillator`
+- output of the producer
+  - Sterp1.root : PCaloHit (SimHits) generated
 
-### Step 4: Output ROOT Files
+### Step 3: Output ROOT Files
 
 - Step-wise ROOT output:
   - `step1.root`: PCaloHit (SimHits) generated
