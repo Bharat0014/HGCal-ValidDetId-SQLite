@@ -369,7 +369,7 @@ Use the generated geometry file along with your simulation output (`step3.root`)
 
 ```bash
 cmsShow --sim-geom-file cmsSimGeom-2026D110.root step3.root
-
+```
 
 ---
 ## 📁 Folder Structure
