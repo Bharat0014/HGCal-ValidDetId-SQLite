@@ -74,8 +74,8 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 | Absolute v        | 15–18        | 4 bits     | 0 to 13                                             |
 | Sign of u         | 14           | 1 bit      | 0 (+u), 1 (–u)                                      |
 | Absolute u        | 10–13        | 4 bits     | 0 to 13                                             |
-| v-coordinate      | 5–9          | 5 bits     | Varies by wafer type and index                      |
-| u-coordinate      | 0–4          | 5 bits     | Varies by wafer type and index                      |
+| v-coordinate      | 5–9          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 24 (HD wafer 0)       |
+| u-coordinate      | 0–4          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |
 
 #### 📘 HE Scintillator
 
@@ -176,9 +176,8 @@ These outputs are automatically saved when running the producer, and are used as
 | Absolute v        | 15–18        | 4 bits     | 0 to 13                                          |
 | Sign of u         | 14           | 1 bit      | 0 (+u), 1 (–u)                                   |
 | Absolute u        | 10–13        | 4 bits     | 0 to 13                                          |
-| v-coordinate      | 5–9          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)
-                             |
-| u-coordinate      | 0–4          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)                             |
+| v-coordinate      | 5–9          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)    |
+| u-coordinate      | 0–4          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)    |
 
 ##### 🟩 HE Scintillator Validated Ranges
 
