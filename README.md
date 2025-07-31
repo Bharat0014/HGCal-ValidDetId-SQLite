@@ -105,9 +105,9 @@ By running this script, we ensure that no detector configuration is missed in th
 
 | Subdetector      | Count        |
 |------------------|--------------|
-| EE (Electromagnetic Endcap)        | 67,837,952   |
-| HE Silicon (Hadronic Endcap - Silicon) | 54,792,192   |
-| HE Scintillator (Hadronic Endcap - Scintillator) | 7,660,814    |
+| EE (Electromagnetic Endcap)        | 54,792,192   |
+| HE Silicon (Hadronic Endcap - Silicon) | 44,255,232   |
+| HE Scintillator (Hadronic Endcap - Scintillator) | 6,471,360    |
 
 These DetIds are generated programmatically and **span all layers**, **module types**, and **wafer configurations** supported in the CMSSW geometry. The next step is to pass them through the validation producer to filter only those compatible with the current release geometry.
 
