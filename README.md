@@ -38,7 +38,7 @@ git cms-addpkg Fireworks
 
 ### 3. Git clone this repo.
 ```
-git clone https:
+git clone https:https://github.com/Bharat0014/HGCal-ValidDetId-SQLite.git
 scram b -j8
 
 ```
