@@ -2,16 +2,13 @@
 #  HGCal DetId Validation, SQLite Database Creation, PCaloHit Workflow, and Visualization
 
 This repository documents the validation and usage of **ValidDetIds** in the High Granularity Calorimeter (HGCal) geometry of CMS. The workflow supports **raw DetId generation**, **validation**, **database storage**, and **SimHit (PCaloHit) creation**, followed by **visualization** using Fireworks.
-
 ---
 
 ## 📌 Overview
 
 The workflow is split into **Admin Setup (once per Geometery release)** and **User Workflow**. 
-
 ---
 
----
 ## Step 0 : For Admin And User Both
 
 ### 1. Set Up the CMSSW Environment
@@ -62,7 +59,7 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 
 
 
-#### 📘 EE & HESilicon
+#### EE & HESilicon
 
 | Parameter         | Bit Position | Bit Length | Value Range                                         |
 |------------------|--------------|------------|-----------------------------------------------------|
@@ -74,7 +71,7 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 | Absolute v        | 15–18        | 4 bits     | 0 to 13                                             |
 | Sign of u         | 14           | 1 bit      | 0 (+u), 1 (–u)                                      |
 | Absolute u        | 10–13        | 4 bits     | 0 to 13                                             |
-| v-coordinate      | 5–9          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 24 (HD wafer 0)       |
+| v-coordinate      | 5–9          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |
 | u-coordinate      | 0–4          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |
 
 #### 📘 HE Scintillator
@@ -90,12 +87,13 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 | Layer Number        | 17–21        | 5 bits     | 8 to 21                         |
 | Ring Index          | 9–16         | 8 bits     | 11 to 50                        |
 | iPhi Index          | 0–8          | 9 bits     | 0 to 380                        |
-
 ---
 
-**Usage**  
+**How to Run**  
+
 ```
-python3 DetIDEE_HElayers.py
+cd src/PhysicsTools/PatExamples/Raw_detids/
+python3 DetIDRaw.py
 ```
 The script creates every valid combination of these values for both silicon-based and scintillator-based detectors. Once all combinations are generated, it saves the entire list into a CSV file called `detid_list_all_combinations.csv`. This file acts as a raw inventory of possible detector elements, which can then be used for further validation or detector studies.
 
@@ -287,7 +285,7 @@ The producer processes the raw hit information, maps each hit to a corresponding
 
 ---
 
-### ⚙️ How to Run
+### How to Run
 
 To run the producer and generate `step1.root`, follow these steps:
 
