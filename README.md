@@ -40,7 +40,7 @@ scram b -j8
 
 ```
 
-### 4. Input Dataset and Storage Location
+### 4. Path to Pre-generated SimHit Dataset and SQLite Output
 ```
 Raw detIds
 https://cernbox.cern.ch/s/iOy0JWalaES2pGE
