@@ -74,7 +74,7 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 | v-coordinate      | 5–9          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |
 | u-coordinate      | 0–4          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |
 
-#### 📘 HE Scintillator
+#### HE Scintillator
 
 | Parameter           | Bit Position | Bit Length | Value Range                     |
 |--------------------|--------------|------------|---------------------------------|
