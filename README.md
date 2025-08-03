@@ -40,6 +40,17 @@ scram b -j8
 
 ```
 
+### 4. pre_created Root file and database path
+```
+Raw detIds
+https://cernbox.cern.ch/s/iOy0JWalaES2pGE
+
+Sqlite database for V17
+https://cernbox.cern.ch/s/IAoK2zhlsnEGzMd
+
+Validate detIds in csv
+https://cernbox.cern.ch/s/i14wWSnrvRWNZoI
+```
 ---
 
 ## Admin Workflow (Once per Release)
