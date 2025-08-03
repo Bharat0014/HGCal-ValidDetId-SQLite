@@ -2,11 +2,13 @@
 #  HGCal DetId Validation, SQLite Database Creation, PCaloHit Workflow, and Visualization
 
 This repository documents the validation and usage of **ValidDetIds** in the High Granularity Calorimeter (HGCal) geometry of CMS. The workflow supports **raw DetId generation**, **validation**, **database storage**, and **SimHit (PCaloHit) creation**, followed by **visualization** using Fireworks.
+
 ---
 
 ## Overview
 
 The workflow is split into **Admin Setup (once per Geometery release)** and **User Workflow**. 
+
 ---
 
 ## Step 0 : For Admin And User Both
@@ -41,13 +43,13 @@ scram b -j8
 ```
 
 
-## 🧰 Admin Workflow (Once per Release)
+## Admin Workflow (Once per Release)
 
 This setup is required **once per each HGCal geometry release** to validate and store valid DetIds in Sqlite databse.
 
 ---
 
-### 🧱 Step A: DetId Definition and Raw CSV Creation (Pre-validation)
+### Step A: DetId Definition and Raw CSV Creation (Pre-validation)
 
 This step generates **all possible raw DetIds** for HGCal geometry before applying any validation.
 
@@ -87,6 +89,7 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 | Layer Number        | 17–21        | 5 bits     | 8 to 21                         |
 | Ring Index          | 9–16         | 8 bits     | 11 to 50                        |
 | iPhi Index          | 0–8          | 9 bits     | 0 to 380                        |
+
 ---
 
 **How to Run**  
@@ -115,12 +118,14 @@ The next step is to pass them through the validation producer to filter only tho
 - Used as **input** for validation and database creation in Step B & C.
 
 
-📌 **Note**: These raw DetIds are NOT guaranteed to be valid — they include every logically possible configuration. The validation logic filters out only those consistent with the current detector geometry.
+**Note**: These raw DetIds are NOT guaranteed to be valid — they include every logically possible configuration. The validation logic filters out only those consistent with the current detector geometry.
+
 ---
 
 ###  Step B & C: DetId Validation and Database Generation (Once Per Release)
 
 In this step, we take the list of all possible DetIds created earlier and check which ones are actually valid in the current HGCal detector geometery release. This is important because not every combination of numbers represents a real or physically allowed part of the detector. Using the latest detector geometry, we carefully go through each DetId and keep only those that match the layout and structure of the detector. The valid DetIds are then saved in two formats: a CSV file for easy viewing and an SQLite database file. This ensures we are working only with meaningful, accurate detector IDs in the next steps.
+
 ---
 
 #### DetId Validation Process
@@ -160,6 +165,7 @@ After successful validation, this step produces:
 - `detid_data_all_feature.db` — SQLite database (produced via CMSSW tools or custom DB writer module)
 
 These outputs are automatically saved when running the producer, and are used as trusted inputs for downstream modules, or analysis.
+
 ---
 
 #### Total Validated DetIds
@@ -198,10 +204,12 @@ These outputs are automatically saved when running the producer, and are used as
 | Layer Number        | 17–21        | 5 bits     | 8 to 21                         |
 | Ring Index          | 9–16         | 8 bits     | 1 to 42                         |
 | iPhi Index          | 0–8          | 9 bits     | 1 to 288                        |
+
 ---
 
 **Note**:  
 This `.csv` and `.db` file pair will be used in later steps (e.g., during simulation, digitization, or analysis). No manual intervention is required for DB generation — it is handled by the same producer that performs the DetId validation.
+
 ---
 
 ## User Workflow
@@ -289,6 +297,7 @@ The producer processes the raw hit information, maps each hit to a corresponding
 
 - **Configuration File**: `HGCalProducerSimHit_cfi.py`  
   Found in the `python` directory, this file configures the producer for CMSSW execution. You must specify the path to your quried DetId csv file for input here.
+
   ---
 
 **How to Run**
@@ -303,6 +312,7 @@ cmsRun HGCalProducerSimHit_cfi.py
 ### Step 3: Multi-Step Processing Pipeline
 
 The raw SimHit data undergoes a multi-step processing pipeline. Each step builds upon the previous one, refining the data through official CMS workflows.
+
 ---
 
 #### Step 1: `step1.root`
@@ -322,6 +332,7 @@ The raw SimHit data undergoes a multi-step processing pipeline. Each step builds
 
 **Purpose**:  
 Performs full reconstruction (`RECO`), Physics Analysis Toolkit (`PAT`) processing, and complete validation including **Data Quality Monitoring (DQM)**. This is the final step that transforms simulated detector output into high-level physics objects ready for analysis.
+
 ---
 
 **Command to Run**:
@@ -366,7 +377,7 @@ cmsShow --sim-geom-file cmsSimGeom-Run4D110.root PhysicsTools/PatExamples/Root_F
 │
 ├── Raw_detids /
 │   ├── DetIDRaw.py
-│   └── 
+│   └── detid_list_all_combinations.csv
 |
 ├── plugins/
 │   ├── BuildFile.xml
