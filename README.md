@@ -65,8 +65,6 @@ This setup is required **once per each HGCal geometry release** to validate and 
 
 This step generates **all possible raw DetIds** for HGCal geometry before applying any validation.
 
----
-
 ####  DetId Bit-Level Definition
 
 In this step, we create a complete list of all possible DetIds for the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables below. Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location before checking if they are valid. These tables follow the official HGCal DetId format and will be used in the next step to check the IDs against the actual detector layout.
