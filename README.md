@@ -325,8 +325,8 @@ The raw SimHit data undergoes a multi-step processing pipeline. Each step builds
 #### Step 2: `step2.root`
 - **Purpose**: Simulates digitization, trigger, and HLT chain from the `step1.root` file.
 - **Command**:
-  ```bash
-  cmsDriver.py step2  -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4 --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-DIGI-RAW -n 1 --eventcontent FEVTDEBUGHLT --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step1_custom1.root  --fileout file:step2.root  > step2.log  2>&1
+```bash
+cmsDriver.py step2  -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4 --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-DIGI-RAW -n 1 --eventcontent FEVTDEBUGHLT --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step1_custom1.root  --fileout file:step2.root  > step2.log  2>&1
 
 #### Step 3: `step3.root`
 
@@ -354,9 +354,10 @@ This step allows users to visually inspect the simulated detector hits and valid
 1. **Generate the Geometry File**  
    Use the following command to create a detector geometry file compatible with Fireworks, based on the 2026 D110 configuration:
 
-   ```bash
-   cd $CMSSW/src
-   cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=Run4 version=D110
+```bash
+cd $CMSSW/src
+cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=Run4 version=D110
+```
 
 - This command generates the geometry file: cmsSimGeom-2026D110.root.
 
