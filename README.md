@@ -43,16 +43,16 @@ scram b -j8
 ### 4. Path to Pre-generated SimHit Dataset and SQLite Output
 ```
 Raw detIds
-[https://cernbox.cern.ch/s/iOy0JWalaES2pGE](https://cernbox.cern.ch/s/QYeBlRIib2XMP4G)
+https://cernbox.cern.ch/s/QYeBlRIib2XMP4G
 
 Sqlite database for V17
-[https://cernbox.cern.ch/s/IAoK2zhlsnEGzMd](https://cernbox.cern.ch/s/oaIpes2jVCXOYib)
+https://cernbox.cern.ch/s/oaIpes2jVCXOYib
 
 Validate detIds in csv
-[https://cernbox.cern.ch/s/i14wWSnrvRWNZoI](https://cernbox.cern.ch/s/EEJgchI8OqolSEH)
+https://cernbox.cern.ch/s/EEJgchI8OqolSEH
 
 step1.root
-[https://cernbox.cern.ch/s/ParmMebc5iLbwyh](https://cernbox.cern.ch/s/YO8oZKZ3p6tD2sJ)
+https://cernbox.cern.ch/s/YO8oZKZ3p6tD2sJ
 ```
 ---
 
