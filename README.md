@@ -12,23 +12,6 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
 ## Step 0 : For Admin And User Both
 
 
-<details>
-  <summary>Click here to expand</summary>
-
-This content will be hidden until you click the arrow.  
-You can put **Markdown** inside as well, like:
-
-- Bullet points
-- **Bold text**
-- `Inline code`
-
-Even images:
-
-![Example](https://via.placeholder.com/200)
-
-</details>
-
-
 ### 1. Set Up the CMSSW Environment
 First, ensure you are using the correct CMSSW version. Set up the environment as follows:
 
@@ -262,7 +245,7 @@ python3 sqliteuser.py
 #### Output
 
 <details>
-  <summary>**Terminal output**</summary>
+  <summary>Terminal output</summary>
 
 
 ```
