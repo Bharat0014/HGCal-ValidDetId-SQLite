@@ -60,8 +60,8 @@ https://cernbox.cern.ch/s/YO8oZKZ3p6tD2sJ
 ```
 
 </details>
----
 
+---
 ## Admin Workflow (Once per Release)
 
 This setup is required **once per each HGCal geometry release** to validate and store valid DetIds in Sqlite databse.
@@ -77,7 +77,10 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 
 
 
-#### EE & HESilicon
+#### EE, HESilicon & HE Scintillator Definations 
+
+<details>
+  <summary>Click here</summary>
 
 | Parameter         | Bit Position | Bit Length | Value Range                                         |
 |------------------|--------------|------------|-----------------------------------------------------|
@@ -107,6 +110,7 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 | iPhi Index          | 0–8          | 9 bits     | 0 to 380                        |
 
 
+</details>
 
 
 **How to Run**  
