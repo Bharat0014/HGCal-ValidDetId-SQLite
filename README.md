@@ -196,6 +196,10 @@ These outputs are automatically saved when running the producer, and are used as
 
 #### DetId Parameter Ranges After Validation
 
+<details>
+  <summary>Click here</summary>
+
+
 ##### EE & HE Silicon Validated Ranges
 
 | Parameter        | Bit Position | Bit Length | Value Range                                       |
@@ -226,6 +230,7 @@ These outputs are automatically saved when running the producer, and are used as
 | iPhi Index          | 0–8          | 9 bits     | 1 to 288                        |
 
 
+</details>
 
 **Note**:  
 This `.csv` and `.db` file pair will be used in later steps (e.g., during simulation, digitization, or analysis). No manual intervention is required for DB generation — it is handled by the same producer that performs the DetId validation.
