@@ -261,7 +261,9 @@ python3 sqliteuser.py
 
 #### Output
 
-**Terminal output**
+<details>
+  <summary>**Terminal output**</summary>
+
 
 ```
 📦 Available tables:
@@ -302,6 +304,7 @@ Enter your SQL WHERE condition using AND / OR / BETWEEN, etc.
 Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15
 >> (here you can write your query)
 ```
+</details>
 
 **File output** :  quried_detid_output.csv
 
