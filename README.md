@@ -10,12 +10,12 @@ This repository documents the validation and usage of **ValidDetIds** in the Hig
 The workflow is split into **Admin Setup (once per Geometery release)** and **User Workflow**. 
 
 ## Step 0 : For Admin And User Both
-
+<details>
+  <summary>Click here</summary>
 
 ### 1. Set Up the CMSSW Environment
 
-<details>
-  <summary>Click here</summary>
+
 First, ensure you are using the correct CMSSW version. Set up the environment as follows:
 
 ```
@@ -25,11 +25,8 @@ cmsrel CMSSW_15_1_0_pre4
 cd CMSSW_14_1_0_pre4/src
 cmsenv
 ```
-</details>
 
 ### 2. Unpack necessary Package for HGcal Geometery
-<details>
-  <summary>Click here</summary>
 
 ```
 git cms-addpkg Geometry/CMSCommonData
@@ -41,22 +38,15 @@ git cms-addpkg Fireworks
 
 ```
 
-</details>
-
 ### 3. Git clone this repo.
-<details>
-  <summary>Click here</summary>
 
 ```
 git clone https:https://github.com/Bharat0014/HGCal-ValidDetId-SQLite.git
 scram b -j8
 
 ```
-</details>
 
 ### 4. Path to Pre-generated SimHit Dataset and SQLite Output
-<details>
-  <summary>Click here</summary>
 
 ```
 Raw detIds
