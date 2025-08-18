@@ -42,6 +42,9 @@ scram b -j8
 ```
 
 ### 4. Path to Pre-generated SimHit Dataset and SQLite Output
+<details>
+  <summary>Click here</summary>
+
 ```
 Raw detIds
 https://cernbox.cern.ch/s/QYeBlRIib2XMP4G
@@ -55,6 +58,8 @@ https://cernbox.cern.ch/s/EEJgchI8OqolSEH
 step1.root
 https://cernbox.cern.ch/s/YO8oZKZ3p6tD2sJ
 ```
+
+</details>
 ---
 
 ## Admin Workflow (Once per Release)
