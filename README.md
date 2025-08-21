@@ -9,9 +9,9 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
 
  ### Table of Contents
 - [Step 0 : Enviroment Setup For Admin And User Both](#step-0--Enviroment-Setup-for-admin-and-user-both)
-- [Admin Workflow (Once per Release)](#admin-workflow-once-per-release)\\
-   -[DetId Definition and Raw CSV Creation](#Step-A--DetId-Definition-and-Raw-CSV-Creation-Pre-validation)
-   -[DetId Validation and Database Generation (Once Per Release)](#Step-B--DetId-Validation-and-Database-Generation-Once-Per-Release)
+- [Admin Workflow (Once per Release)](#admin-workflow-once-per-release)
+  - [Step A : DetId Definition and Raw CSV Creation (Pre-validation)](#step-a--detid-definition-and-raw-csv-creation-pre-validation)
+  - [Step B : DetId Validation and Database Generation (Once per Release)](#step-b--detid-validation-and-database-generation-once-per-release)
 - [User Workflow](#User-Workflow)
 - [Step 3 : Database Storage](#step-3--database-storage)
 
