@@ -130,7 +130,7 @@ The script creates every valid combination of these values for both silicon-base
 
 By running this script, we ensure that no detector configuration is missed in the initial setup phase.
 
-#### Total Number of Raw DetIds (Before Validation)
+##### Total Number of Raw DetIds (Before Validation)
 
 | Subdetector      | Count        |
 |------------------|--------------|
@@ -138,12 +138,12 @@ By running this script, we ensure that no detector configuration is missed in th
 | HE Silicon (Hadronic Endcap - Silicon) | 44,255,232   |
 | HE Scintillator (Hadronic Endcap - Scintillator) | 6,471,360    |
 
-The next step is to pass them through the validation producer to filter only those compatible with the current release geometry.
-
 
 #### Output (from Step A)
 - `detid_list_all_combinations.csv`: Contains all DetIds before validation.
-- Used as **input** for validation and database creation in Step B & C.
+
+
+The next step is to pass them through the validation producer to filter only those compatible with the current release geometry (v17).
 
 
 **Note**: These raw DetIds are NOT guaranteed to be valid — they include every logically possible configuration. The validation logic filters out only those consistent with the current detector geometry.
