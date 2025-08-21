@@ -67,6 +67,7 @@ https://cernbox.cern.ch/s/YO8oZKZ3p6tD2sJ
 </details>
 
 ---
+
 ## Admin Workflow (Once per Release)
 
 This setup is required **once per each HGCal geometry release** to validate and store valid DetIds in Sqlite databse.
@@ -81,8 +82,9 @@ This step generates **all possible raw DetIds** for HGCal geometry before applyi
 In this step, we create a complete list of all possible DetIds for the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables below. Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location before checking if they are valid. These tables follow the official HGCal DetId format and will be used in the next step to check the IDs against the actual detector layout.
 
 
+#### DetId Definations (Pre-validation) 
 
-#### EE, HESilicon & HE Scintillator Definations 
+##### EE, HESilicon 
 
 <details>
   <summary>Click here</summary>
@@ -100,7 +102,7 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 | v-coordinate      | 5–9          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |
 | u-coordinate      | 0–4          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |
 
-#### HE Scintillator
+##### HE Scintillator
 
 | Parameter           | Bit Position | Bit Length | Value Range                     |
 |--------------------|--------------|------------|---------------------------------|
