@@ -6,6 +6,15 @@ This repository explains how **ValidDetIds** are used in the High Granularity Ca
 The workflow is split into **Admin Setup (once per Geometery release)** and **User Workflow**.
 
 ---
+
+ Table of Contents
+- [Workflow](#workflow)
+- [Step 0 : For Admin And User Both](#step-0--for-admin-and-user-both)
+- [Step 1 : Raw DetId Generation](#step-1--raw-detid-generation)
+- [Step 2 : Validation](#step-2--validation)
+- [Step 3 : Database Storage](#step-3--database-storage)
+- [Step 4 : SimHit Creation](#step-4--simhit-creation)
+- [Step 5 : Visualization](#step-5--visualization)
  
 
 ## Step 0 : For Admin And User Both
