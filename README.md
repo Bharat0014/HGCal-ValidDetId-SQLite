@@ -406,7 +406,7 @@ cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=Run4 version=D110
 
 2. **Run Fireworks for Visualization**
 
-Use the generated geometry file along with your simulation output (`step3.root`) to launch the Fireworks GUI and visualize the raw `DetId`s.
+Use the generated geometry file along with your simulation output (`step3.root`) to launch the Fireworks GUI and visualize the raw `DetIds`.
 
 #### Command:
 
