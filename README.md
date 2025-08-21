@@ -84,10 +84,10 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 
 #### DetId Definations (Pre-validation) 
 
-##### EE, HESilicon 
-
 <details>
   <summary>Click here</summary>
+
+##### EE, HESilicon 
 
 | Parameter         | Bit Position | Bit Length | Value Range                                         |
 |------------------|--------------|------------|-----------------------------------------------------|
