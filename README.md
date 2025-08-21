@@ -325,7 +325,7 @@ Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15
 - Output CSV format
   - `DetId`, `NLayer`, `DetType`
 
-
+---
 
 ### Step 2: Development of SimHit Producer
 
@@ -357,6 +357,7 @@ cmsRun HGCalProducerSimHit_cfi.py
 - Initial processed hits (`pCaloHits`) with validated DetIds.
 - **Used as input** for the next stage of CMSSW processing.
 
+---
 
 ### Step 3: Multi-Step Processing Pipeline
 
@@ -381,6 +382,7 @@ Performs full reconstruction (`RECO`), Physics Analysis Toolkit (`PAT`) processi
 cmsDriver.py step3  -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 1 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step2.root  --fileout file:step3.root  > step3.log  2>&1
 
 ```
+---
 
 ### Step 4: Visualization with Fireworks
 
