@@ -7,14 +7,12 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
 
 ---
 
- Table of Contents
+ ### Table of Contents
 - [Step 0 : For Admin And User Both](#step-0--for-admin-and-user-both)
 - [Admin Workflow (Once per Release)](#admin-workflow-once-per-release)
-- [Step 2 : Validation](#step-2--validation)
+- [User Workflow](#User_Workflow)
 - [Step 3 : Database Storage](#step-3--database-storage)
-- [Step 4 : SimHit Creation](#step-4--simhit-creation)
-- [Step 5 : Visualization](#step-5--visualization)
- 
+
 
 ## Step 0 : For Admin And User Both
 
