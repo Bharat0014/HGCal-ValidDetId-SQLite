@@ -12,8 +12,12 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
 - [Admin Workflow (Once per Release)](#admin-workflow-once-per-release)
   - [Step A : DetId Definition and Raw CSV Creation](#step-a--detid-definition-and-raw-csv-creation-pre-validation)
   - [Step B : DetId Validation and Database Generation](#step-b--detid-validation-and-database-generation-once-per-release)
-- [User Workflow](#User-Workflow)
-- [Step 3 : Database Storage](#step-3--database-storage)
+- [User Workflow](#user-workflow)
+  - [Step 1: Use the Provided SQLite DB and Run Queries](#step-1-use-the-provided-sqlite-db-and-run-queries)
+  - [Step 2: Development of SimHit Producer](#step-2-development-of-simhit-producer)
+  - [Step 3: Multi-Step Processing Pipeline](#step-3-multi-step-processing-pipeline)
+  - [Step 4: Visualization with Fireworks](#step-4-visualization-with-fireworks)
+-[Folder Structure](#Folder-Structure)
 
 
 ## Step 0 : Enviroment Setup For Admin And User Both
