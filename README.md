@@ -263,7 +263,7 @@ In the next stage, a custom SimHit producer takes over. This producer reads the 
 
 ### Step 1: Use the Provided SQLite DB and Run Queries 
 
-- This step allows users to interact with the **precomputed SQLite database (`detid_data_all_feature.db`)**, which contains all the relevant DetIds and their associated geometry details. By running the provided Python script, users can explore the database, check available tables and columns, and run custom SQL queries. This is important because it provides an easy way to access HGCal geometry information without regenerating DetIds every time, making the workflow faster, reproducible, and more efficient.
+This step allows users to interact with the **precomputed SQLite database (`detid_data_all_feature.db`)**, which contains all the relevant DetIds and their associated geometry details. By running the provided Python script, users can explore the database, check available tables and columns, and run custom SQL queries. This is important because it provides an easy way to access HGCal geometry information without regenerating DetIds every time, making the workflow faster, reproducible, and more efficient.
 
 
 **How to Run**
