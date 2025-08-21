@@ -20,6 +20,8 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
 - [Folder Structure](#Folder-Structure)
 
 
+---
+
 ## Step 0 : Enviroment Setup For Admin And User Both
 
 This step is about setting up the **CMSSW environment** so that both admin and user can access all the necessary tools for this workflow. It also provides access to the relevant codes used in this work and connects to the **pre-calibrated database for HGCal geometry (version v17)**.
