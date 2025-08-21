@@ -17,7 +17,7 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
   - [Step 2: Development of SimHit Producer](#step-2-development-of-simhit-producer)
   - [Step 3: Multi-Step Processing Pipeline](#step-3-multi-step-processing-pipeline)
   - [Step 4: Visualization with Fireworks](#step-4-visualization-with-fireworks)
--[Folder Structure](#Folder-Structure)
+- [Folder Structure](#📁-Folder-Structure)
 
 
 ## Step 0 : Enviroment Setup For Admin And User Both
