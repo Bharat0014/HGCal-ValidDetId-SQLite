@@ -8,8 +8,10 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
 ---
 
  Table of Contents
-- [Workflow](#workflow)
 - [Step 0 : For Admin And User Both](#step-0--for-admin-and-user-both)
+  -[1. Set Up the CMSSW Environment](#1-set-up-the-cmssw-environment)
+  -[2. Unpack necessary Package for HGcal Geometery](#2-Unpack-necessary-Package-for-HGcal-Geometery)
+  
 - [Step 1 : Raw DetId Generation](#step-1--raw-detid-generation)
 - [Step 2 : Validation](#step-2--validation)
 - [Step 3 : Database Storage](#step-3--database-storage)
