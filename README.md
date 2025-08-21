@@ -10,8 +10,8 @@ The workflow is split into **Admin Setup (once per Geometery release)** and **Us
  ### Table of Contents
 - [Step 0 : Enviroment Setup For Admin And User Both](#step-0--Enviroment-Setup-for-admin-and-user-both)
 - [Admin Workflow (Once per Release)](#admin-workflow-once-per-release)
-   -[DetId Definition and Raw CSV Creation](#DetId-Definition-and-Raw-CSV-Creation-Pre-validation)
-   -[DetId Validation and Database Generation (Once Per Release)](#DetId-Validation-and-Database-Generation-Once-Per-Release)
+   -[DetId Definition and Raw CSV Creation](#Step-A--DetId-Definition-and-Raw-CSV-Creation-Pre-validation)
+   -[DetId Validation and Database Generation (Once Per Release)](#Step-A--DetId-Validation-and-Database-Generation-Once-Per-Release)
 - [User Workflow](#User-Workflow)
 - [Step 3 : Database Storage](#step-3--database-storage)
 
@@ -81,7 +81,7 @@ https://cernbox.cern.ch/s/YO8oZKZ3p6tD2sJ
 This setup is required **once per each HGCal geometry release** to validate and store valid DetIds in Sqlite databse.
 
 
-### Step A: DetId Definition and Raw CSV Creation (Pre-validation)
+###  DetId Definition and Raw CSV Creation (Pre-validation)
 
 In this step, we create a complete list of all possible DetIds for the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables below. Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location before checking if they are valid. These tables follow the official HGCal DetId format and will be used in the next step to check the IDs against the actual detector layout. This step generates **all possible raw DetIds** for HGCal geometry before applying any validation.
 
