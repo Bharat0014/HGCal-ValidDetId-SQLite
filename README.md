@@ -129,7 +129,7 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 </details>
 
 
-The `DetIDRaw.py` script is responsible for generating the **raw Detector IDs (DetIDs)**. The code is listed below:
+The `DetIDRaw.py` script is generating the **raw Detector IDs (DetIDs)**. The code is listed below:
 
 <details>
   <summary>Show DetIDRaw.py code</summary>
