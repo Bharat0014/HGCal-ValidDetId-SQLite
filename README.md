@@ -32,7 +32,7 @@ This step is about setting up the **CMSSW environment** so that both admin and u
 ### 1. Set Up the CMSSW Environment
 
 
-First, ensure you are using the correct CMSSW version. Set up the environment as follows:
+First, login to the lxplus account then Set up the environment as follows:
 
 ```
 # Load the CMSSW version
@@ -65,16 +65,16 @@ scram b -j8
 ### 4. Path to Pre-generated SimHit Dataset and SQLite Output
 
 ```
-Raw detIds
+Raw detIds (detid_list_all_combinations.csv)
 https://cernbox.cern.ch/s/QYeBlRIib2XMP4G
 
-Sqlite database for V17
+Sqlite database for V17 (detid_data_all_feature.db)
 https://cernbox.cern.ch/s/oaIpes2jVCXOYib
 
-Validate detIds in csv
+Validate detIds in csv (valid_detID_all_feature.csv)
 https://cernbox.cern.ch/s/EEJgchI8OqolSEH
 
-step1.root
+Producer output (step1.root)
 https://cernbox.cern.ch/s/YO8oZKZ3p6tD2sJ
 ```
 
