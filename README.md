@@ -245,10 +245,9 @@ with open('detid_list_all_combinations.csv', mode='w', newline='') as file:
         writer.writerow([det_type, detid])  # Write DetectorType and DetID in the file
 
 print(f"\nGenerated all possible HGCal DetIDs (Silicon and Scintillator) and stored them in 'detid_list_all_combinations.csv'")
+```
 
-
-
-</details>```
+</details>
 
 ```
 cd src/PhysicsTools/PatExamples/Raw_detids/
