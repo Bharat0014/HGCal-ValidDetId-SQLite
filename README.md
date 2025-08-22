@@ -88,7 +88,7 @@ Producer output (step1.root)
 
 ## User Workflow
 
-The User Workflow outlines how users interact with the DetId validation framework and make use of the generated resources in their own studies or applications. The main purpose of this workflow is to make the validated DetId information easily accessible and usable. Users begin by working with the precomputed SQLite database (detid_data_all_feature.db), which contains only the DetIds that have been confirmed to be valid according to the latest HGCal geometry (v17). By running simple SQL queries, users can extract specific sets of DetIds—such as those corresponding to a particular layer, detector type, or region and export the results into a CSV file for further use.
+The User Workflow outlines how users interact with the DetId validation framework and make use of the pre-generated valid detIds SQLite database in their own studies. The main purpose of this workflow is to make the validated DetId information easily accessible and usable. Users begin by working with the precomputed SQLite database **(detid_data_all_feature.db)**, which contains only the DetIds that have been confirmed to be valid according to the latest HGCal geometry (v17). By running simple SQL queries, users can extract specific sets of DetIds—such as those corresponding to a particular layer, detector type, or wafer type and export the results into a CSV file **(quried_detid_output.csv)** for further use.
 
 In the next stage, a custom SimHit producer takes over. This producer reads the quried csv file, and transforms them into a standardized format called pCaloHits. These hits carry energy, position, and timing information (for this case the energy and time is set to fixed value). The processed data is stored in an output file named step1.root, which acts as an intermediate checkpoint for quality checks, visualization, and future tasks. This two-step workflow—starting with DetId extraction and followed by hit processing in the Pcalohit.
 
@@ -200,8 +200,8 @@ conn.close()
 
 **How to Run**
 ```
-cd src/PhysicsTools/PatExamples/python
-python3 sqliteuser.py
+>> cd src/PhysicsTools/PatExamples/python
+>> python3 sqliteuser.py
 ```
 
 #### Terminal Output
@@ -263,7 +263,7 @@ Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15
 
 In this step, we introduce a **custom CMSSW EDProducer** designed specifically to handle SimHit data using validated DetIds. The purpose of this module is to simulate calorimeter hits (`pCaloHits`) based on raw inputs (such as hit positions, energy, and time), and link them correctly to the detector geometry using validated DetIds. This is an essential step in preparing realistic data for detector studies and performance validation.
 
-The producer processes the raw hit information, maps each hit to a corresponding **validated DetId**, and writes the output into a file called **`step1.root`**. This file contains all relevant information such as energy, time, and detector ID for each hit, and is formatted for easy use in the next step of the simulation chain.
+The producer processes the raw hit information from **quried_detid_output.csv**, maps each hit to a corresponding **validated DetId**, and writes the output into a file called **`step1.root`**. This file contains all relevant information such as energy, time, and detector ID for each hit, and is formatted for easy use in the next step of the simulation chain.
 
 
 #### Components Involved
@@ -826,8 +826,8 @@ process.options = cms.untracked.PSet(
 To run the producer and generate `step1.root`, follow these steps:
 
 ```
-cd src/PhysicsTools/PatExamples/python
-cmsRun HGCalProducerSimHit_cfi.py
+>> cd src/PhysicsTools/PatExamples/python
+>> cmsRun HGCalProducerSimHit_cfi.py
 ```
 
 **Output** :  Step1.root
@@ -847,7 +847,7 @@ The raw SimHit data undergoes a multi-step processing pipeline. Each step builds
 
 - **Command**:
 ```bash
-cmsDriver.py step2  -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4 --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-DIGI-RAW -n 1 --eventcontent FEVTDEBUGHLT --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step1.root  --fileout file:step2.root  > step2.log  2>&1
+>> cmsDriver.py step2  -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4 --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-DIGI-RAW -n 1 --eventcontent FEVTDEBUGHLT --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step1.root  --fileout file:step2.root  > step2.log  2>&1
 ```
 
 #### Step b : `step3.root`
@@ -857,7 +857,7 @@ Performs full reconstruction (`RECO`), Physics Analysis Toolkit (`PAT`) processi
 
 **Command**:
 ```bash
-cmsDriver.py step3  -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 1 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step2.root  --fileout file:step3.root  > step3.log  2>&1
+>> cmsDriver.py step3  -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 1 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step2.root  --fileout file:step3.root  > step3.log  2>&1
 
 ```
 ---
@@ -874,8 +874,8 @@ This step allows users to visually inspect the simulated detector hits and valid
    Use the following command to create a detector geometry file compatible with Fireworks, based on the 2026 D110 configuration:
 
 ```bash
-cd $CMSSW/src
-cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=Run4 version=D110
+>> cd $CMSSW/src
+>> cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=Run4 version=D110
 ```
 
 - This command generates the geometry file: cmsSimGeom-2026D110.root.
@@ -887,7 +887,7 @@ Use the generated geometry file along with your simulation output (`step3.root`)
 #### Command:
 
 ```bash
-cmsShow --sim-geom-file cmsSimGeom-Run4D110.root PhysicsTools/PatExamples/Root_Files/step3.root
+>> cmsShow --sim-geom-file cmsSimGeom-Run4D110.root PhysicsTools/PatExamples/Root_Files/step3.root
 ```
 
 ---
@@ -1771,8 +1771,8 @@ process.schedule = cms.Schedule(process.p)
 
 **How to Run**  
 ```
-cd src/PhysicsTools/PatExamples/python
-cmsRun HGCalProducerDatabaseGen_cfi.py
+>> cd src/PhysicsTools/PatExamples/python
+>> cmsRun HGCalProducerDatabaseGen_cfi.py
 ```
 
 #### Output
