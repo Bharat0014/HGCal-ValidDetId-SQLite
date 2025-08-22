@@ -263,7 +263,7 @@ Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15
 
 In this step, we introduce a **custom CMSSW EDProducer** designed specifically to handle SimHit data using validated DetIds. The purpose of this module is to simulate calorimeter hits (`pCaloHits`) based on raw inputs (such as hit positions, energy, and time), and link them correctly to the detector geometry using validated DetIds. This is an essential step in preparing realistic data for detector studies and performance validation.
 
-The producer processes the raw hit information from **quried_detid_output.csv**, maps each hit to a corresponding **validated DetId**, and writes the output into a file called **`step1.root`**. This file contains all relevant information such as energy, time, and detector ID for each hit, and is formatted for easy use in the next step of the simulation chain.
+The producer processes the raw hit information from **quried_detid_output.csv**, maps each hit to a corresponding **validated DetId**, and writes the output into a file called **`step1.root`**. This file contains all relevant information such as energy, time, and detector ID for each hit.
 
 
 #### Components Involved
