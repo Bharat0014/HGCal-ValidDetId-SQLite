@@ -32,7 +32,7 @@ This step is about setting up the **CMSSW environment** so that both admin and u
 ### 1. Set Up the CMSSW Environment
 
 
-First, login to the lxplus account then Set up the environment as follows:
+First login to your lxplus account then Set up the environment as follows:
 
 ```
 # Load the CMSSW version
