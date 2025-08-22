@@ -36,30 +36,31 @@ First login to your lxplus account then Set up the environment as follows:
 
 ```
 # Load the CMSSW version
-cd /path/to/your/working/directory
-cmsrel CMSSW_15_1_0_pre4
-cd CMSSW_15_1_0_pre4/src
-cmsenv
+>> cd /path/to/your/working/directory
+>> cmsrel CMSSW_15_1_0_pre4
+>> cd CMSSW_15_1_0_pre4/src
+>> cmsenv
 ```
 
 ### 2. Unpack necessary Package for HGcal Geometery.
 
 ```
-git cms-addpkg Geometry/CMSCommonData
-git cms-addpkg Configuration/Geometry
-git cms-addpkg Geometry/HGCalCommonData
-git cms-addpkg Geometry/HGCalGeometry
-git cms-addpkg Geometry/Records
-git cms-addpkg Fireworks
+>> git cms-addpkg Geometry/CMSCommonData
+>> git cms-addpkg Configuration/Geometry
+>> git cms-addpkg Geometry/HGCalCommonData
+>> git cms-addpkg Geometry/HGCalGeometry
+>> git cms-addpkg Geometry/Records
+>> git cms-addpkg Fireworks
 
 ```
 
 ### 3. Git Clone This Repository.
 
 ```
-git clone https://github.com/Bharat0014/HGCal-ValidDetId-SQLite.git
-scram b -j8
+>> git clone https://github.com/Bharat0014/HGCal-ValidDetId-SQLite.git
+>> scram b -j8
 ```
+**scarm b -j8** - This command is for compaliation of the cmssw code and the **-j8** is used to achive the good compilation speed through 8 cores.  
 
 ### 4. Path to Pre-generated SimHit Dataset and SQLite Output.
 
@@ -83,12 +84,12 @@ https://cernbox.cern.ch/s/YO8oZKZ3p6tD2sJ
 
 ## Admin Workflow (Once per Release)
 
-This setup is required **once per each HGCal geometry release** to validate and store valid DetIds in Sqlite databse.
+This setup is required **once per each HGCal geometry release** to first validate and then store valid DetIds in Sqlite databse.
 
 
 ###  Step A : DetId Definition and Raw CSV Creation (Pre validation)
 
-In this step, we create a complete list of all possible DetIds for the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables below: [DetId Definations (Pre validation)](#DetId-Definations-(Pre-validation)). Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location before checking if they are valid. These tables follow the official HGCal DetId format and will be used in the next step to check the IDs against the actual detector layout. This step generates **all possible raw DetIds** for HGCal geometry before applying any validation.
+In this step, we create a complete list of all possible DetIds for each of the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables below: [DetId Definations (Pre validation)](#DetId-Definations-(Pre-validation)). Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location before checking if they are valid. These tables follow the official HGCal DetId format and will be used in the next step to check the IDs against the actual detector layout. This step generates **all possible raw DetIds** for HGCal geometry before applying any validation.
 
 #### DetId Definations (Pre validation) 
 
@@ -97,18 +98,18 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 
 ##### EE, HESilicon 
 
-| Parameter         | Bit Position | Bit Length | Value Range                                         |
-|------------------|--------------|------------|-----------------------------------------------------|
-| Detector Type     | 28–31        | 4 bits     | 8 (EE Silicon), 9 (HE Silicon)                      |
-| Wafer Type        | 26–27        | 2 bits     | 0, 1, 2, 3                                          |
-| Z Side            | 25           | 1 bit      | 0 (for +z), 1 (for –z)                              |
-| Layer Number      | 20–24        | 5 bits     | 1–26 (for DetType 8), 1–21 (for DetType 9)          |
-| Sign of v         | 19           | 1 bit      | 0 (+v), 1 (–v)                                      |
-| Absolute v        | 15–18        | 4 bits     | 0 to 13                                             |
-| Sign of u         | 14           | 1 bit      | 0 (+u), 1 (–u)                                      |
-| Absolute u        | 10–13        | 4 bits     | 0 to 13                                             |
-| v-coordinate      | 5–9          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |
-| u-coordinate      | 0–4          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |
+| Parameter         | Bit Position | Bit Length | Value Range                                         | Acceptable Combination |
+|------------------|--------------|------------|-----------------------------------------------------|-------------------------|
+| Detector Type     | 28–31        | 4 bits     | 8 (EE Silicon), 9 (HE Silicon)                      |2                       |
+| Wafer Type        | 26–27        | 2 bits     | 0, 1, 2, 3                                          |4					   |
+| Z Side            | 25           | 1 bit      | 0 (for +z), 1 (for –z)                              |2					   |
+| Layer Number      | 20–24        | 5 bits     | 1–26 (for DetType 8), 1–21 (for DetType 9)          |26 (for DetType 8), 21 (for DetType 9) |
+| Sign of v         | 19           | 1 bit      | 0 (+v), 1 (–v)                                      |2					   |
+| Absolute v        | 15–18        | 4 bits     | 0 to 13                                             |14					   |
+| Sign of u         | 14           | 1 bit      | 0 (+u), 1 (–u)                                      |2					   |
+| Absolute u        | 10–13        | 4 bits     | 0 to 13                                             |14					   |
+| v-coordinate      | 5–9          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |16(LD wafers 1,2), 24(HD wafer 0) |
+| u-coordinate      | 0–4          | 5 bits     | 0 to 15 (LD wafers 1,2), 0 to 23 (HD wafer 0)       |16(LD wafers 1,2), 24(HD wafer 0) |
 
 ##### HE Scintillator
 
