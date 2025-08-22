@@ -269,7 +269,7 @@ The producer processes the raw hit information from **quried_detid_output.csv**,
 #### Components Involved
 
 - **Producer Code**: `HGCalProducerSimHit.cc`  
-  Located in the `plugins` directory, this C++ source defines the logic for converting raw hits into `pCaloHits`.
+  Located in the `plugins` directory, this C++ code defines the logic for converting raw hits into `pCaloHits`.
 
 <details>
   <summary>Show HGCalProducerSimHit.cc </summary>
