@@ -865,7 +865,7 @@ Performs full reconstruction (`RECO`), Physics Analysis Toolkit (`PAT`) processi
 ### Step 4: Visualization with Fireworks
 
 **Purpose**:  
-This step allows users to visually inspect the simulated detector hits and validated DetIds using the **Fireworks** event display tool in CMSSW. It helps confirm that hits are correctly mapped to the detector geometry and provides a powerful way to debug or showcase events.
+This step allows users to visually inspect the validated DetIds using the **Fireworks** event display tool in CMSSW. It helps confirm that hits are correctly mapped to the detector geometry and provides a powerful way to debug or showcase events.
 
 
 #### Steps to Visualize Raw DetIDs
