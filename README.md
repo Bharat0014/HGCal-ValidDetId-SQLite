@@ -103,7 +103,7 @@ In this step, we create a complete list of all possible DetIds for each of the H
 | Detector Type     | 28–31        | 4 bits     | 8 (EE Silicon), 9 (HE Silicon)                      |2                       |
 | Wafer Type        | 26–27        | 2 bits     | 0, 1, 2, 3                                          |4					   |
 | Z Side            | 25           | 1 bit      | 0 (for +z), 1 (for –z)                              |2					   |
-| Layer Number      | 20–24        | 5 bits     | 1–26 (for DetType 8), 1–21 (for DetType 9)          |26 (for DetType 8), 21 (for DetType 9) |
+| Layer Number      | 20–24        | 5 bits     | 1–26 (for DetType 8), 1–21 (for DetType 9)          |26 (DetType 8), 21 (DetType 9) |
 | Sign of v         | 19           | 1 bit      | 0 (+v), 1 (–v)                                      |2					   |
 | Absolute v        | 15–18        | 4 bits     | 0 to 13                                             |14					   |
 | Sign of u         | 14           | 1 bit      | 0 (+u), 1 (–u)                                      |2					   |
