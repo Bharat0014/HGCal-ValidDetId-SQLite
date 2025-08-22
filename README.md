@@ -54,12 +54,11 @@ git cms-addpkg Fireworks
 
 ```
 
-### 3. Git clone this repo.
+### 3. Git Clone This Repository.
 
 ```
-git clone https:https://github.com/Bharat0014/HGCal-ValidDetId-SQLite.git
+git clone https://github.com/Bharat0014/HGCal-ValidDetId-SQLite.git
 scram b -j8
-
 ```
 
 ### 4. Path to Pre-generated SimHit Dataset and SQLite Output
