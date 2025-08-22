@@ -122,7 +122,7 @@ In this step, we create a complete list of all possible DetIds for each of the H
 | SiPM Type           | 23–23        | 1 bit      | 0 (small), 1 (large)            |2                       |
 | Trigger/Detector Cell | 22–22      | 1 bit      | 0 (Detector), 1 (Trigger)       |2                       |
 | Layer Number        | 17–21        | 5 bits     | 8 to 21                         |14                      |
-| Ring Index          | 9–16         | 8 bits     | 11 to 50                        |39                      |
+| Ring Index          | 9–16         | 8 bits     | 1 to 50                        |51                      |
 | iPhi Index          | 0–8          | 9 bits     | 0 to 380                        |381                     |
 
 
