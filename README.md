@@ -130,6 +130,10 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 
 
 **How to Run**  
+<details>
+  <summary>Code</summary>
+
+</details>
 
 ```
 cd src/PhysicsTools/PatExamples/Raw_detids/
