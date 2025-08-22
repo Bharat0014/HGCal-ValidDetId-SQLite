@@ -91,9 +91,9 @@ Producer output (step1.root)
 This setup has to be used by the Admin and it is required to be executed **ONLY once per each HGCal geometry release** to first validate and then store valid DetIds in Sqlite databse for a new release of the geometry.
 
 
-###  Step A : DetId Definition and Raw CSV Creation (Pre validation)
+###  Step A : DetId Definition And Store Possible Combination Of DetIds In CSV Formate (Pre Validation)
 
-In this step, we create a complete list of all possible DetIds for each of the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables below: [DetId Definations (Pre validation)](#DetId-Definations-(Pre-validation)). Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location before checking if they are valid. These tables follow the official HGCal DetId format and will be used in the next step to check the IDs against the actual detector layout. This step generates **all possible raw DetIds** for HGCal geometry before applying any validation.
+In this step, we create a complete list of all possible Combination of DetIds for the given DetIds definations in the table below: [DetId Definations (Pre validation)](#DetId-Definations-(Pre-validation)). Then we store each created detIds for each of the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables. Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location. These tables follow the official HGCal DetId format and will be used in the next step to check the detIds against the actual detector layout. 
 
 #### DetId Definations (Pre validation) 
 
