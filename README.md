@@ -9,14 +9,14 @@ The workflow is split into **User Workflow** and **Admin Setup (once per Geomete
 
  ## Table of Contents
 - [Enviroment Setup For Admin And User Both](#Enviroment-Setup-for-admin-and-user-both)
-- [Admin Workflow (Once per Release)](#admin-workflow-once-per-release)
-  - [Step A : DetId Definition and Raw CSV Creation](#step-a--detid-definition-and-raw-csv-creation-pre-validation)
-  - [Step B : DetId Validation and Database Generation](#step-b--detid-validation-and-database-generation-once-per-release)
 - [User Workflow](#user-workflow)
   - [Step 1: Use the Provided SQLite DB and Run Queries](#step-1-use-the-provided-sqlite-db-and-run-queries)
   - [Step 2: Development of SimHit Producer](#step-2-development-of-simhit-producer)
   - [Step 3: Multi-Step Processing Pipeline](#step-3-multi-step-processing-pipeline)
   - [Step 4: Visualization with Fireworks](#step-4-visualization-with-fireworks)
+- [Admin Workflow (Once per Release)](#admin-workflow-once-per-release)
+  - [Step A : DetId Definition and Raw CSV Creation](#step-a--detid-definition-and-raw-csv-creation-pre-validation)
+  - [Step B : DetId Validation and Database Generation](#step-b--detid-validation-and-database-generation-once-per-release)
 - [Folder Structure](#Folder-Structure)
 
 
@@ -86,12 +86,818 @@ Producer output (step1.root)
 
 ---
 
+## User Workflow
+
+The User Workflow outlines how users interact with the DetId validation framework and make use of the generated resources in their own studies or applications. The main purpose of this workflow is to make the validated DetId information easily accessible and usable. Users begin by working with the precomputed SQLite database (detid_data_all_feature.db), which contains only the DetIds that have been confirmed to be valid according to the latest HGCal geometry (v17). By running simple SQL queries, users can extract specific sets of DetIds—such as those corresponding to a particular layer, detector type, or region and export the results into a CSV file for further use.
+
+In the next stage, a custom SimHit producer takes over. This producer reads the quried csv file, and transforms them into a standardized format called pCaloHits. These hits carry energy, position, and timing information (for this case the energy and time is set to fixed value). The processed data is stored in an output file named step1.root, which acts as an intermediate checkpoint for quality checks, visualization, and future tasks. This two-step workflow—starting with DetId extraction and followed by hit processing in the Pcalohit.
+
+
+### Step 1: Use the Provided SQLite DB and Run Queries 
+
+This step allows users to interact with the **precomputed SQLite database (`detid_data_all_feature.db`)**, which contains all the relevant DetIds and their associated geometry details. By running the provided Python script, users can explore the database, check available tables and columns, and run custom SQL queries. This is important because it provides an easy way to access HGCal geometry information without regenerating DetIds every time, making the workflow faster, reproducible, and more efficient.
+
+<details>
+  <summary>Show sqliteuser.py </summary>
+
+```python
+
+import sqlite3
+import re
+import csv
+import time
+
+# === DB FILE (unencrypted) ===
+db_file = "detid_data_all_feature.db"  # replace with your actual SQLite DB file
+
+# === Connect to SQLite DB ===
+conn = sqlite3.connect(db_file)
+cursor = conn.cursor()
+
+# === List all tables ===
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+tables = cursor.fetchall()
+
+print("\n📦 Available tables:")
+for idx, (tbl,) in enumerate(tables):
+    print(f"{idx + 1}: {tbl}")
+
+# === Choose a table ===
+choice = int(input("\nEnter the number of the table to use: "))
+table_name = tables[choice - 1][0]
+
+# === Get column names ===
+cursor.execute(f"PRAGMA table_info({table_name});")
+columns_info = cursor.fetchall()
+
+# Build column name mapping
+column_map = {}
+print("\n🧾 Available columns:")
+for col in columns_info:
+    col_name = col[1]  # second field is column name
+    column_map[col_name] = col_name
+    print(f"- {col_name}")
+
+# === Ask for WHERE condition ===
+print("\nEnter your SQL WHERE condition using AND / OR / BETWEEN, etc.")
+print("Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15")
+user_input = input(">> ")
+
+# Replace plain column names with quoted ones
+for clean, original in column_map.items():
+    user_input = re.sub(rf'\b{clean}\b', f"`{original}`", user_input)
+
+# === Define columns to SELECT ===
+selected_columns = [
+    'DetId',
+    'DetType',
+    'Nlayer'
+]
+selected_column_str = ', '.join(f"`{column_map[col]}`" for col in selected_columns)
+
+# === Build and run the query ===
+query = f"SELECT {selected_column_str} FROM `{table_name}` WHERE {user_input}"
+
+try:
+    start_time = time.time()
+    cursor.execute(query)
+    results = cursor.fetchall()
+    end_time = time.time()
+
+    print(f"\n🕒 Query execution time: {end_time - start_time:.4f} seconds")
+    print(f"🔍 Found {len(results)} matching entries:")
+
+    for row in results[:10]:
+        print(row)
+
+    # Count DetType values
+    det8 = sum(1 for r in results if r[1] == 8)
+    det9 = sum(1 for r in results if r[1] == 9)
+    det10 = sum(1 for r in results if r[1] == 10)
+
+    print(f"\n📊 Counts by DetType:")
+    print(f"  DetType = 8 : {det8}")
+    print(f"  DetType = 9 : {det9}")
+    print(f"  DetType = 10: {det10}")
+
+    # === Save to CSV ===
+    output_file = "quried_detid_output.csv"
+    with open(output_file, "w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(selected_columns)
+        writer.writerows(results)
+
+    print(f"\n✅ Results saved to {output_file}")
+
+except Exception as e:
+    print(f"\n❌ Query failed: {e}")
+
+# === Close connection ===
+conn.close()
+```
+</details>
+
+
+**How to Run**
+```
+cd src/PhysicsTools/PatExamples/python
+python3 sqliteuser.py
+```
+
+#### Terminal Output
+
+<details>
+  <summary>Terminal output</summary>
+
+
+```
+📦 Available tables:
+1: hgcal_detids_v5
+
+Enter the number of the table to use: 1
+
+🧾 Available columns:
+- DetId
+- Zside
+- DetType
+- Nlayer
+- LayerType
+- FrontBack
+- WaferType
+- WaferIndex
+- PartType
+- Cassette
+- CassetteType
+- Orient
+- AbsU
+- AbsV
+- CellU
+- CellV
+- x
+- y
+- z
+- TileType
+- SipmType
+- TriggerCell
+- RingIndex
+- IphiIndex
+- Granularity
+- eta
+- phi
+
+Enter your SQL WHERE condition using AND / OR / BETWEEN, etc.
+Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15
+>> (here you can write your query)
+```
+</details>
+
+**File output** :  quried_detid_output.csv
+
+- Users extract specific DetIds and export to CSV.
+- Output CSV format
+  - `DetId`, `NLayer`, `DetType`
+
+---
+
+### Step 2: Development of SimHit Producer
+
+In this step, we introduce a **custom CMSSW EDProducer** designed specifically to handle SimHit data using validated DetIds. The purpose of this module is to simulate calorimeter hits (`pCaloHits`) based on raw inputs (such as hit positions, energy, and time), and link them correctly to the detector geometry using validated DetIds. This is an essential step in preparing realistic data for detector studies and performance validation.
+
+The producer processes the raw hit information, maps each hit to a corresponding **validated DetId**, and writes the output into a file called **`step1.root`**. This file contains all relevant information such as energy, time, and detector ID for each hit, and is formatted for easy use in the next step of the simulation chain.
+
+
+#### Components Involved
+
+- **Producer Code**: `HGCalProducerSimHit.cc`  
+  Located in the `plugins` directory, this C++ source defines the logic for converting raw hits into `pCaloHits`.
+
+<details>
+  <summary>Show HGCalProducerSimHit.cc </summary>
+
+```cpp
+
+
+// -*- C++ -*-
+//
+// Package:    HGCalDetIDvalidation/HGCalRawProducernew
+// Class:      
+//
+/*
+
+ Description: Example module for raw detID validation store in Pcalo step1.root file 
+
+ Implementation:
+    
+*/
+//
+// Original Author:  Bsirasva
+//    
+
+
+
+#ifndef HGCALPRODUCERSIMHIT_H
+#define HGCALPRODUCERSIMHIT_H
+
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <memory>
+#include <algorithm> // For std::min_element and std::max_element
+#include <iterator>
+#include <random>
+#include "TCanvas.h"
+#include "TH2F.h"
+#include "TStyle.h"
+#include <TPolyMarker.h>
+#include <TGraph.h>
+#include <TColor.h>
+
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToModule.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToROC.h"
+#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+
+#include "Geometry/Records/interface/HGCalGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloTopology/interface/HGCalTopology.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
+#include "HepMC/GenEvent.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+class HGCalProducerSimHit : public edm::stream::EDProducer<> {
+public:
+  explicit HGCalProducerSimHit(const edm::ParameterSet&);
+  ~HGCalProducerSimHit() override {}
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  
+private:
+  std::string infoFileName_;
+
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomTokenEE_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomTokenHESil_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomTokenHESci_;
+
+    edm::PCaloHitContainer HGCHitsEE;
+    edm::PCaloHitContainer HGCHitsHEback;
+    edm::PCaloHitContainer HGCHitsHEfront;
+    std::vector<PSimHit> hitsBarrel_;
+    std::vector<PSimHit> hitsEndcap_;
+    std::vector<SimTrack> simTracks_;
+    std::vector<SimVertex> simVertices_;
+    std::vector<PSimHit> muonCSCHits_;
+    std::vector<PSimHit> muonDTHits_;
+    std::vector<PSimHit> muonGEMHits_;
+    std::vector<PSimHit> muonME0Hits_;
+    std::vector<PSimHit> muonRPCHits_;
+    std::vector<PSimHit> plTHits_;
+    std::vector<PSimHit> trackerHitsPixelBarrelHighTof_;
+    std::vector<PSimHit> trackerHitsPixelBarrelLowTof_;
+    std::vector<PSimHit> trackerHitsPixelEndcapHighTof_;
+    std::vector<PSimHit> trackerHitsPixelEndcapLowTof_;
+    std::vector<PSimHit> trackerHitsTECHighTof_;
+    std::vector<PSimHit> trackerHitsTECLowTof_;
+    std::vector<PSimHit> trackerHitsTIBHighTof_;
+    std::vector<PSimHit> trackerHitsTIBLowTof_;
+    std::vector<PSimHit> trackerHitsTIDHighTof_;
+    std::vector<PSimHit> trackerHitsTIDLowTof_;
+    std::vector<PSimHit> trackerHitsTOBHighTof_;
+    std::vector<PSimHit> trackerHitsTOBLowTof_;
+    std::vector<PCaloHit> hcalHits_;
+    std::vector<PCaloHit> zdcHits_;
+    std::vector<PSimHit> bcm1fHits_;
+    std::vector<PSimHit> bhmHits_;
+    std::vector<PSimHit> ctppsPixelHits_;
+    std::vector<PSimHit> ctppsTimingHits_;
+    std::vector<PCaloHit> calibrationHGCHitsEE_;
+    std::vector<PCaloHit> calibrationHGCHitsHEback_;
+    std::vector<PCaloHit> calibrationHGCHitsHEfront_;
+    std::vector<PCaloHit> caloHitsTk_;
+    std::vector<PCaloHit> ecalHitsEB_;
+    std::vector<PCaloHit> hfnoseHits_;
+};
+
+HGCalProducerSimHit::HGCalProducerSimHit(const edm::ParameterSet& iConfig)
+    : infoFileName_(iConfig.getParameter<std::string>("infoFileName")),
+      geomTokenEE_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", "HGCalEESensitive"})),
+      geomTokenHESil_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", "HGCalHESiliconSensitive"})),
+      geomTokenHESci_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", "HGCalHEScintillatorSensitive"})){	      
+      produces<edm::PCaloHitContainer>("HGCHitsEE");
+      produces<edm::PCaloHitContainer>("HGCHitsHEback");
+      produces<edm::PCaloHitContainer>("HGCHitsHEfront");     
+      produces<std::vector<PSimHit>>("FastTimerHitsBarrel");
+      produces<std::vector<PSimHit>>("FastTimerHitsEndcap");
+      produces<std::vector<SimTrack>>("");
+      produces<std::vector<SimVertex>>("");     
+      produces<std::vector<PSimHit>>("MuonCSCHits");
+      produces<std::vector<PSimHit>>("MuonDTHits");
+      produces<std::vector<PSimHit>>("MuonGEMHits");
+      produces<std::vector<PSimHit>>("MuonME0Hits");
+      produces<std::vector<PSimHit>>("MuonRPCHits");
+      produces<std::vector<PSimHit>>("PLTHits");
+      produces<std::vector<PSimHit>>("TrackerHitsPixelBarrelHighTof");
+  produces<std::vector<PSimHit>>("TrackerHitsPixelBarrelLowTof");
+  produces<std::vector<PSimHit>>("TrackerHitsPixelEndcapHighTof");
+  produces<std::vector<PSimHit>>("TrackerHitsPixelEndcapLowTof");
+  produces<std::vector<PSimHit>>("TrackerHitsTECHighTof");
+  produces<std::vector<PSimHit>>("TrackerHitsTECLowTof");
+  produces<std::vector<PSimHit>>("TrackerHitsTIBHighTof");
+  produces<std::vector<PSimHit>>("TrackerHitsTIBLowTof");
+  produces<std::vector<PSimHit>>("TrackerHitsTIDHighTof");
+  produces<std::vector<PSimHit>>("TrackerHitsTIDLowTof");
+  produces<std::vector<PSimHit>>("TrackerHitsTOBHighTof");
+  produces<std::vector<PSimHit>>("TrackerHitsTOBLowTof");
+  produces<std::vector<PCaloHit>>("HcalHits");
+  produces<std::vector<PCaloHit>>("ZDCHITS");
+  produces<std::vector<PSimHit>>("BCM1FHits");
+  produces<std::vector<PSimHit>>("BHMHits");
+  produces<std::vector<PSimHit>>("CTPPSPixelHits");
+  produces<std::vector<PSimHit>>("CTPPSTimingHits");
+      produces<std::vector<PCaloHit>>("CalibrationHGCHitsEE");
+  produces<std::vector<PCaloHit>>("CalibrationHGCHitsHEback");
+  produces<std::vector<PCaloHit>>("CalibrationHGCHitsHEfront");
+  produces<std::vector<PCaloHit>>("CaloHitsTk");
+  produces<std::vector<PCaloHit>>("EcalHitsEB");
+  produces<std::vector<PCaloHit>>("HFNoseHits");
+      }
+
+void HGCalProducerSimHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+   
+  auto  HGCHitsEE = std::make_unique<edm::PCaloHitContainer>();
+    auto HGCHitsHEback = std::make_unique<edm::PCaloHitContainer>();
+    auto HGCHitsHEfront = std::make_unique<edm::PCaloHitContainer>();
+  edm::ESHandle<HGCalGeometry> geomHandleEE;
+  edm::ESHandle<HGCalGeometry> geomHandleHESil;
+  edm::ESHandle<HGCalGeometry> geomHandleHESci;
+
+  // Attempt to retrieve HGCalGeometry using the provided token
+  try {
+    geomHandleEE = iSetup.getHandle(geomTokenEE_);
+    geomHandleHESil = iSetup.getHandle(geomTokenHESil_);
+    geomHandleHESci = iSetup.getHandle(geomTokenHESci_);
+  } catch (cms::Exception& e) {
+    edm::LogError("HGCalRawDet") << "Failed to retrieve HGCalGeometry: " << e.what();
+    throw;
+  }
+
+  // Check if the handle is valid before proceeding
+  if (!geomHandleEE.isValid() || !geomHandleHESil.isValid() || !geomHandleHESci.isValid()) {
+    edm::LogError("HGCalRawDet") << "Failed to retrieve valid HGCalGeometry!";
+    throw cms::Exception("DataError") << "Failed to retrieve valid HGCalGeometry!";
+  }
+  const HGCalGeometry& geomEE = *geomHandleEE;
+  const HGCalGeometry& geomHESil = *geomHandleHESil;
+  const HGCalGeometry& geomHESci = *geomHandleHESci;
+
+  // Debug output to confirm HGCalGeometry is loaded
+  edm::LogInfo("HGCalRawDet") << "Successfully retrieved HGCalGeometry.";
+
+
+std::ifstream inputFile(infoFileName_);
+  if (!inputFile.is_open()) {
+    throw cms::Exception("FileOpenError") << "Failed to open file: " << infoFileName_;
+  }
+   
+  std::string line;
+  int lineNumber = 0;
+  int itra =0;
+  while (std::getline(inputFile, line)) {
+    lineNumber++;
+     std::cout<<"linenumber" <<lineNumber<<std::endl;
+    std::istringstream iss(line);
+     uint32_t detId;
+    int det_type, wafer_type, z_side, layer_number;
+    int abs_u, abs_v, u_coordinate, v_coordinate;
+    int layertype, frontBack, index_;
+    int partialType, orient, placeIndex, waferType_;
+
+    char delimiter;
+
+    if (!(iss >> detId >> delimiter
+              >> det_type >> delimiter
+              >> layer_number)) {
+     edm::LogWarning("HGCalRawDet") << "Skipping invalid data at line " << lineNumber<< ": " << line;
+      continue;
+    }
+ 
+    
+    
+ 
+
+   float  em=1;
+   float time = 20;
+   float energy = 0.0002;
+   int itra = 0;
+   PCaloHit newHit; 
+ 
+  
+   newHit = PCaloHit(detId,energy, time, itra, em, 0);
+
+
+if ( det_type==8) {
+        HGCHitsEE->push_back(newHit);
+      } else if ((det_type==9 || det_type==10) &&(layer_number>=1 && layer_number<=11) ) {
+        HGCHitsHEfront->push_back(newHit);
+      } else if((det_type==9 || det_type==10) && layer_number>11){
+        HGCHitsHEback->push_back(newHit);
+      }
+  }
+
+
+inputFile.close();
+
+iEvent.put(std::move(HGCHitsEE), "HGCHitsEE");
+iEvent.put(std::move(HGCHitsHEback), "HGCHitsHEback");
+iEvent.put(std::move(HGCHitsHEfront), "HGCHitsHEfront");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(hitsBarrel_), "FastTimerHitsBarrel");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(hitsEndcap_), "FastTimerHitsEndcap");
+iEvent.put(std::make_unique<std::vector<SimTrack>>(simTracks_), "");
+iEvent.put(std::make_unique<std::vector<SimVertex>>(simVertices_), "");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(muonCSCHits_), "MuonCSCHits");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(muonDTHits_), "MuonDTHits");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(muonGEMHits_), "MuonGEMHits");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(muonME0Hits_), "MuonME0Hits");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(muonRPCHits_), "MuonRPCHits");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(plTHits_), "PLTHits");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsPixelBarrelHighTof_), "TrackerHitsPixelBarrelHighTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsPixelBarrelLowTof_), "TrackerHitsPixelBarrelLowTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsPixelEndcapHighTof_), "TrackerHitsPixelEndcapHighTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsPixelEndcapLowTof_), "TrackerHitsPixelEndcapLowTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTECHighTof_), "TrackerHitsTECHighTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTECLowTof_), "TrackerHitsTECLowTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTIBHighTof_), "TrackerHitsTIBHighTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTIBLowTof_), "TrackerHitsTIBLowTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTIDHighTof_), "TrackerHitsTIDHighTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTIDLowTof_), "TrackerHitsTIDLowTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTOBHighTof_), "TrackerHitsTOBHighTof");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTOBLowTof_), "TrackerHitsTOBLowTof");
+iEvent.put(std::make_unique<std::vector<PCaloHit>>(hcalHits_), "HcalHits");
+iEvent.put(std::make_unique<std::vector<PCaloHit>>(zdcHits_), "ZDCHITS");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(bcm1fHits_), "BCM1FHits");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(bhmHits_), "BHMHits");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(ctppsPixelHits_), "CTPPSPixelHits");
+iEvent.put(std::make_unique<std::vector<PSimHit>>(ctppsTimingHits_), "CTPPSTimingHits");
+iEvent.put(std::make_unique<std::vector<PCaloHit>>(calibrationHGCHitsEE_), "CalibrationHGCHitsEE");
+iEvent.put(std::make_unique<std::vector<PCaloHit>>(calibrationHGCHitsHEback_), "CalibrationHGCHitsHEback");
+iEvent.put(std::make_unique<std::vector<PCaloHit>>(calibrationHGCHitsHEfront_), "CalibrationHGCHitsHEfront");
+iEvent.put(std::make_unique<std::vector<PCaloHit>>(caloHitsTk_), "CaloHitsTk");
+iEvent.put(std::make_unique<std::vector<PCaloHit>>(ecalHitsEB_), "EcalHitsEB");
+iEvent.put(std::make_unique<std::vector<PCaloHit>>(hfnoseHits_), "HFNoseHits");
+}
+
+DEFINE_FWK_MODULE(HGCalProducerSimHit);
+
+#endif // HGCALPRODUCERSIMHIT_H
+```
+</details>
+
+- **Configuration File**: `HGCalProducerSimHit_cfi.py`  
+  Found in the `python` directory, this file configures the producer for CMSSW execution. You must specify the path to your quried DetId csv file for input here.
+
+<details>
+  <summary>Show HGCalProducerSimHit_cfi.py </summary>
+
+```python
+import FWCore.ParameterSet.Config as cms
+
+# Import the era to configure the process
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+
+# Define the process with the appropriate era
+process = cms.Process('SIM', Phase2C17I13M9)
+
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.Generator_cff')
+process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
+process.load('GeneratorInterface.Core.genFilterSummary_cff')
+process.load('Configuration.StandardSequences.SimIdeal_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+process.load("SimG4Core.Application.g4SimHits_cfi")
+# Optional: Include specific sub-detector simulation configurations
+
+# Input source
+process.source = cms.Source("EmptySource")
+
+
+process.options = cms.untracked.PSet(
+    IgnoreCompletely = cms.untracked.vstring(),
+    Rethrow = cms.untracked.vstring(),
+    TryToContinue = cms.untracked.vstring(),
+    accelerators = cms.untracked.vstring('*'),
+    allowUnscheduled = cms.obsolete.untracked.bool,
+    canDeleteEarly = cms.untracked.vstring(),
+    deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
+    dumpOptions = cms.untracked.bool(False),
+    emptyRunLumiMode = cms.obsolete.untracked.string,
+    eventSetup = cms.untracked.PSet(
+        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
+            allowAnyLabel_=cms.required.untracked.uint32
+        ),
+        numberOfConcurrentIOVs = cms.untracked.uint32(0)
+    ),
+    fileMode = cms.untracked.string('FULLMERGE'),
+    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
+    makeTriggerResults = cms.obsolete.untracked.bool,
+    modulesToCallForTryToContinue = cms.untracked.vstring(),
+    modulesToIgnoreForDeleteEarly = cms.untracked.vstring(),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(1),
+    printDependencies = cms.untracked.bool(False),
+    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
+    throwIfIllegalParameter = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(False)
+)
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(1)  # Set to the number of events you want to simulate
+)
+
+# Event content configuration (output all data)
+process.load('Configuration.EventContent.EventContent_cff')
+
+# Configure the output
+process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
+        SelectEvents = cms.untracked.PSet(
+            SelectEvents = cms.vstring('generation_step')
+    ),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('GEN-SIM'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:../Root_Files/step1.root'),
+    outputCommands = cms.untracked.vstring(
+        'keep *',
+    
+    ),
+    splitLevel = cms.untracked.int32(0)
+)
+
+
+# Other statements
+process.genstepfilter.triggerConditions=cms.vstring("generation_step")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
+
+process.generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
+    PythiaParameters = cms.PSet(
+        parameterSets = cms.vstring(
+            'pythia8CommonSettings',
+            'pythia8CP5Settings',
+            'processParameters'
+        ),
+        processParameters = cms.vstring(
+            'Top:gg2ttbar = on ',
+            'Top:qqbar2ttbar = on ',
+            '6:m0 = 175 '
+        ),
+        pythia8CP5Settings = cms.vstring(
+            'Tune:pp 14',
+            'Tune:ee 7',
+            'MultipartonInteractions:ecmPow=0.03344',
+            'MultipartonInteractions:bProfile=2',
+            'MultipartonInteractions:pT0Ref=1.41',
+            'MultipartonInteractions:coreRadius=0.7634',
+            'MultipartonInteractions:coreFraction=0.63',
+            'ColourReconnection:range=5.176',
+            'SigmaTotal:zeroAXB=off',
+            'SpaceShower:alphaSorder=2',
+            'SpaceShower:alphaSvalue=0.118',
+            'SigmaProcess:alphaSvalue=0.118',
+            'SigmaProcess:alphaSorder=2',
+            'MultipartonInteractions:alphaSvalue=0.118',
+            'MultipartonInteractions:alphaSorder=2',
+            'TimeShower:alphaSorder=2',
+            'TimeShower:alphaSvalue=0.118',
+            'SigmaTotal:mode = 0',
+            'SigmaTotal:sigmaEl = 21.89',
+            'SigmaTotal:sigmaTot = 100.309',
+            'PDF:pSet=LHAPDF6:NNPDF31_nnlo_as_0118'
+        ),
+        pythia8CommonSettings = cms.vstring(
+            'Tune:preferLHAPDF = 2',
+            'Main:timesAllowErrors = 10000',
+            'Check:epTolErr = 0.01',
+            'Beams:setProductionScalesFromLHEF = off',
+            'SLHA:minMassSM = 1000.',
+            'ParticleDecays:limitTau0 = on',
+            'ParticleDecays:tau0Max = 10',
+            'ParticleDecays:allowPhotonRadiation = on'
+        )
+    ),
+    comEnergy = cms.double(14000.0),
+    filterEfficiency = cms.untracked.double(1.0),
+    maxEventsToPrint = cms.untracked.int32(0),
+    pythiaHepMCVerbosity = cms.untracked.bool(False),
+    pythiaPylistVerbosity = cms.untracked.int32(0)
+)
+
+
+process.ProductionFilterSequence = cms.Sequence(process.generator)
+# Define paths
+process.generation_step = cms.Path(process.pgen)
+process.psim = cms.Path(process.psim)
+
+# Define the DetIdNewProducer module (HGCalProducerSimHit) with the input CSV file
+process.g4SimHits = cms.EDProducer('HGCalProducerSimHit',
+    infoFileName = cms.string("quried_detid_output.csv"),
+    CalibrationHGCHitsEE = cms.InputTag("g4SimHits", "CalibrationHGCHitsEE"),
+    CalibrationHGCHitsHEback = cms.InputTag("g4SimHits", "CalibrationHGCHitsHEback"),
+    CalibrationHGCHitsHEfront = cms.InputTag("g4SimHits", "CalibrationHGCHitsHEfront"),
+    CaloHitsTk = cms.InputTag("g4SimHits", "CaloHitsTk"),
+    EcalHitsEB = cms.InputTag("g4SimHits", "EcalHitsEB"),
+    HFNoseHits = cms.InputTag("g4SimHits", "HFNoseHits"),
+    HGCHitsEE = cms.InputTag("g4SimHits", "HGCHitsEE"),
+    HGCHitsHEback = cms.InputTag("g4SimHits", "HGCHitsHEback"),
+    HGCHitsHEfront = cms.InputTag("g4SimHits", "HGCHitsHEfront"),
+    HcalHits = cms.InputTag("g4SimHits", "HcalHits"),
+    ZDCHITS = cms.InputTag("g4SimHits", "ZDCHITS"),
+
+    # Input tags for PSimHit collections
+    BCM1FHits = cms.InputTag("g4SimHits", "BCM1FHits"),
+    BHMHits = cms.InputTag("g4SimHits", "BHMHits"),
+    CTPPSPixelHits = cms.InputTag("g4SimHits", "CTPPSPixelHits"),
+    CTPPSTimingHits = cms.InputTag("g4SimHits", "CTPPSTimingHits"),
+    FastTimerHitsBarrel = cms.InputTag("g4SimHits", "FastTimerHitsBarrel"),
+    FastTimerHitsEndcap = cms.InputTag("g4SimHits", "FastTimerHitsEndcap"),
+    MuonCSCHits = cms.InputTag("g4SimHits", "MuonCSCHits"),
+    MuonDTHits = cms.InputTag("g4SimHits", "MuonDTHits"),
+    MuonGEMHits = cms.InputTag("g4SimHits", "MuonGEMHits"),
+    MuonME0Hits = cms.InputTag("g4SimHits", "MuonME0Hits"),
+    MuonRPCHits = cms.InputTag("g4SimHits", "MuonRPCHits"),
+    PLTHits = cms.InputTag("g4SimHits", "PLTHits"),
+    TrackerHitsPixelBarrelHighTof = cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
+    TrackerHitsPixelBarrelLowTof = cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
+    TrackerHitsPixelEndcapHighTof = cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
+    TrackerHitsPixelEndcapLowTof = cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
+    TrackerHitsTECHighTof = cms.InputTag("g4SimHits", "TrackerHitsTECHighTof"),
+    TrackerHitsTECLowTof = cms.InputTag("g4SimHits", "TrackerHitsTECLowTof"),
+    TrackerHitsTIBHighTof = cms.InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
+    TrackerHitsTIBLowTof = cms.InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
+    TrackerHitsTIDHighTof = cms.InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
+    TrackerHitsTIDLowTof = cms.InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
+    TrackerHitsTOBHighTof = cms.InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
+    TrackerHitsTOBLowTof = cms.InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
+
+    # Input tags for SimTrack and SimVertex collections
+    SimTracks = cms.InputTag("g4SimHits", "SimTrack"),
+    SimVertices = cms.InputTag("g4SimHits", "SimVertex") 
+)
+
+process.g4SimHits_step = cms.Path(process.g4SimHits)
+
+process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
+process.endjob_step = cms.EndPath(process.endOfProcess)
+process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
+
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.g4SimHits_step,process.psim,process.endjob_step,process.FEVTDEBUGoutput_step)
+
+from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+associatePatAlgosToolsTask(process)
+# filter all path with the production filter sequence
+for path in process.paths:
+    getattr(process,path).insert(0, process.ProductionFilterSequence)
+
+
+from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+process = customiseEarlyDelete(process)
+
+# Options to continue on error
+process.options = cms.untracked.PSet(
+    TryToContinue = cms.untracked.vstring('ProductNotFound')
+)
+```
+</details>
+
+**How to Run**
+
+To run the producer and generate `step1.root`, follow these steps:
+
+```
+cd src/PhysicsTools/PatExamples/python
+cmsRun HGCalProducerSimHit_cfi.py
+```
+
+**Output** :  Step1.root
+- Generated by the custom SimHit producer.
+- Initial processed hits (`pCaloHits`) with validated DetIds.
+- **Used as input** for the next stage of CMSSW processing.
+
+---
+
+### Step 3: Multi-Step Processing Pipeline
+
+The raw SimHit data undergoes a multi-step processing pipeline. Each step builds upon the previous one, refining the data through official CMS workflows.
+
+
+#### Step a : `step2.root`
+- **Purpose**: Simulates digitization, trigger, and HLT chain from the `step1.root` file.
+
+- **Command**:
+```bash
+cmsDriver.py step2  -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4 --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-DIGI-RAW -n 1 --eventcontent FEVTDEBUGHLT --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step1.root  --fileout file:step2.root  > step2.log  2>&1
+```
+
+#### Step b : `step3.root`
+
+**Purpose**:  
+Performs full reconstruction (`RECO`), Physics Analysis Toolkit (`PAT`) processing, and complete validation including **Data Quality Monitoring (DQM)**. This is the final step that transforms simulated detector output into high-level physics objects ready for analysis.
+
+**Command**:
+```bash
+cmsDriver.py step3  -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 1 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step2.root  --fileout file:step3.root  > step3.log  2>&1
+
+```
+---
+
+### Step 4: Visualization with Fireworks
+
+**Purpose**:  
+This step allows users to visually inspect the simulated detector hits and validated DetIds using the **Fireworks** event display tool in CMSSW. It helps confirm that hits are correctly mapped to the detector geometry and provides a powerful way to debug or showcase events.
+
+
+#### Steps to Visualize Raw DetIDs
+
+1. **Generate the Geometry File**  
+   Use the following command to create a detector geometry file compatible with Fireworks, based on the 2026 D110 configuration:
+
+```bash
+cd $CMSSW/src
+cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=Run4 version=D110
+```
+
+- This command generates the geometry file: cmsSimGeom-2026D110.root.
+
+2. **Run Fireworks for Visualization**
+
+Use the generated geometry file along with your simulation output (`step3.root`) to launch the Fireworks GUI and visualize the raw `DetIds`.
+
+#### Command:
+
+```bash
+cmsShow --sim-geom-file cmsSimGeom-Run4D110.root PhysicsTools/PatExamples/Root_Files/step3.root
+```
+
+---
+
 ## Admin Workflow (Once per Release)
 
 This setup has to be used by the Admin and it is required to be executed **ONLY once per each HGCal geometry release** to first validate and then store valid DetIds in Sqlite databse for a new release of the geometry.
 
 
-###  Step A : DetId Definition And Store Possible Combination Of DetIds In CSV Formate (Pre Validation)
+###  Step A : DetId Definition And Raw CSV Creation (Pre Validation)
 
 In this step, we create a complete list of all possible Combination of DetIds for the given DetIds definations in the table below: [DetId Definations (Pre validation)](#DetId-Definations-(Pre-validation)). Then we store each created detIds in the CSV file for each of the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables. Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location. These tables follow the official HGCal DetId format and the stroed detIds will be used in the next step to check the detIds against the actual detector layout. 
 
@@ -1034,812 +1840,6 @@ This `.csv` and `.db` file pair will be used in later steps (e.g., during simula
 
 ---
 
-
-## User Workflow
-
-The User Workflow outlines how users interact with the DetId validation framework and make use of the generated resources in their own studies or applications. The main purpose of this workflow is to make the validated DetId information easily accessible and usable. Users begin by working with the precomputed SQLite database (detid_data_all_feature.db), which contains only the DetIds that have been confirmed to be valid according to the latest HGCal geometry (v17). By running simple SQL queries, users can extract specific sets of DetIds—such as those corresponding to a particular layer, detector type, or region and export the results into a CSV file for further use.
-
-In the next stage, a custom SimHit producer takes over. This producer reads the quried csv file, and transforms them into a standardized format called pCaloHits. These hits carry energy, position, and timing information (for this case the energy and time is set to fixed value). The processed data is stored in an output file named step1.root, which acts as an intermediate checkpoint for quality checks, visualization, and future tasks. This two-step workflow—starting with DetId extraction and followed by hit processing in the Pcalohit.
-
-
-### Step 1: Use the Provided SQLite DB and Run Queries 
-
-This step allows users to interact with the **precomputed SQLite database (`detid_data_all_feature.db`)**, which contains all the relevant DetIds and their associated geometry details. By running the provided Python script, users can explore the database, check available tables and columns, and run custom SQL queries. This is important because it provides an easy way to access HGCal geometry information without regenerating DetIds every time, making the workflow faster, reproducible, and more efficient.
-
-<details>
-  <summary>Show sqliteuser.py </summary>
-
-```python
-
-import sqlite3
-import re
-import csv
-import time
-
-# === DB FILE (unencrypted) ===
-db_file = "detid_data_all_feature.db"  # replace with your actual SQLite DB file
-
-# === Connect to SQLite DB ===
-conn = sqlite3.connect(db_file)
-cursor = conn.cursor()
-
-# === List all tables ===
-cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-tables = cursor.fetchall()
-
-print("\n📦 Available tables:")
-for idx, (tbl,) in enumerate(tables):
-    print(f"{idx + 1}: {tbl}")
-
-# === Choose a table ===
-choice = int(input("\nEnter the number of the table to use: "))
-table_name = tables[choice - 1][0]
-
-# === Get column names ===
-cursor.execute(f"PRAGMA table_info({table_name});")
-columns_info = cursor.fetchall()
-
-# Build column name mapping
-column_map = {}
-print("\n🧾 Available columns:")
-for col in columns_info:
-    col_name = col[1]  # second field is column name
-    column_map[col_name] = col_name
-    print(f"- {col_name}")
-
-# === Ask for WHERE condition ===
-print("\nEnter your SQL WHERE condition using AND / OR / BETWEEN, etc.")
-print("Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15")
-user_input = input(">> ")
-
-# Replace plain column names with quoted ones
-for clean, original in column_map.items():
-    user_input = re.sub(rf'\b{clean}\b', f"`{original}`", user_input)
-
-# === Define columns to SELECT ===
-selected_columns = [
-    'DetId',
-    'DetType',
-    'Nlayer'
-]
-selected_column_str = ', '.join(f"`{column_map[col]}`" for col in selected_columns)
-
-# === Build and run the query ===
-query = f"SELECT {selected_column_str} FROM `{table_name}` WHERE {user_input}"
-
-try:
-    start_time = time.time()
-    cursor.execute(query)
-    results = cursor.fetchall()
-    end_time = time.time()
-
-    print(f"\n🕒 Query execution time: {end_time - start_time:.4f} seconds")
-    print(f"🔍 Found {len(results)} matching entries:")
-
-    for row in results[:10]:
-        print(row)
-
-    # Count DetType values
-    det8 = sum(1 for r in results if r[1] == 8)
-    det9 = sum(1 for r in results if r[1] == 9)
-    det10 = sum(1 for r in results if r[1] == 10)
-
-    print(f"\n📊 Counts by DetType:")
-    print(f"  DetType = 8 : {det8}")
-    print(f"  DetType = 9 : {det9}")
-    print(f"  DetType = 10: {det10}")
-
-    # === Save to CSV ===
-    output_file = "quried_detid_output.csv"
-    with open(output_file, "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(selected_columns)
-        writer.writerows(results)
-
-    print(f"\n✅ Results saved to {output_file}")
-
-except Exception as e:
-    print(f"\n❌ Query failed: {e}")
-
-# === Close connection ===
-conn.close()
-```
-</details>
-
-
-**How to Run**
-```
-cd src/PhysicsTools/PatExamples/python
-python3 sqliteuser.py
-```
-
-#### Terminal Output
-
-<details>
-  <summary>Terminal output</summary>
-
-
-```
-📦 Available tables:
-1: hgcal_detids_v5
-
-Enter the number of the table to use: 1
-
-🧾 Available columns:
-- DetId
-- Zside
-- DetType
-- Nlayer
-- LayerType
-- FrontBack
-- WaferType
-- WaferIndex
-- PartType
-- Cassette
-- CassetteType
-- Orient
-- AbsU
-- AbsV
-- CellU
-- CellV
-- x
-- y
-- z
-- TileType
-- SipmType
-- TriggerCell
-- RingIndex
-- IphiIndex
-- Granularity
-- eta
-- phi
-
-Enter your SQL WHERE condition using AND / OR / BETWEEN, etc.
-Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15
->> (here you can write your query)
-```
-</details>
-
-**File output** :  quried_detid_output.csv
-
-- Users extract specific DetIds and export to CSV.
-- Output CSV format
-  - `DetId`, `NLayer`, `DetType`
-
----
-
-### Step 2: Development of SimHit Producer
-
-In this step, we introduce a **custom CMSSW EDProducer** designed specifically to handle SimHit data using validated DetIds. The purpose of this module is to simulate calorimeter hits (`pCaloHits`) based on raw inputs (such as hit positions, energy, and time), and link them correctly to the detector geometry using validated DetIds. This is an essential step in preparing realistic data for detector studies and performance validation.
-
-The producer processes the raw hit information, maps each hit to a corresponding **validated DetId**, and writes the output into a file called **`step1.root`**. This file contains all relevant information such as energy, time, and detector ID for each hit, and is formatted for easy use in the next step of the simulation chain.
-
-
-#### Components Involved
-
-- **Producer Code**: `HGCalProducerSimHit.cc`  
-  Located in the `plugins` directory, this C++ source defines the logic for converting raw hits into `pCaloHits`.
-
-<details>
-  <summary>Show HGCalProducerSimHit.cc </summary>
-
-```cpp
-
-
-// -*- C++ -*-
-//
-// Package:    HGCalDetIDvalidation/HGCalRawProducernew
-// Class:      
-//
-/*
-
- Description: Example module for raw detID validation store in Pcalo step1.root file 
-
- Implementation:
-    
-*/
-//
-// Original Author:  Bsirasva
-//    
-
-
-
-#ifndef HGCALPRODUCERSIMHIT_H
-#define HGCALPRODUCERSIMHIT_H
-
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <memory>
-#include <algorithm> // For std::min_element and std::max_element
-#include <iterator>
-#include <random>
-#include "TCanvas.h"
-#include "TH2F.h"
-#include "TStyle.h"
-#include <TPolyMarker.h>
-#include <TGraph.h>
-#include <TColor.h>
-
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "DataFormats/DetId/interface/DetId.h"
-
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToModule.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToROC.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-
-#include "Geometry/Records/interface/HGCalGeometryRecord.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloTopology/interface/HGCalTopology.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
-#include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
-#include "HepMC/GenEvent.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-class HGCalProducerSimHit : public edm::stream::EDProducer<> {
-public:
-  explicit HGCalProducerSimHit(const edm::ParameterSet&);
-  ~HGCalProducerSimHit() override {}
-
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  
-private:
-  std::string infoFileName_;
-
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomTokenEE_;
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomTokenHESil_;
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomTokenHESci_;
-
-    edm::PCaloHitContainer HGCHitsEE;
-    edm::PCaloHitContainer HGCHitsHEback;
-    edm::PCaloHitContainer HGCHitsHEfront;
-    std::vector<PSimHit> hitsBarrel_;
-    std::vector<PSimHit> hitsEndcap_;
-    std::vector<SimTrack> simTracks_;
-    std::vector<SimVertex> simVertices_;
-    std::vector<PSimHit> muonCSCHits_;
-    std::vector<PSimHit> muonDTHits_;
-    std::vector<PSimHit> muonGEMHits_;
-    std::vector<PSimHit> muonME0Hits_;
-    std::vector<PSimHit> muonRPCHits_;
-    std::vector<PSimHit> plTHits_;
-    std::vector<PSimHit> trackerHitsPixelBarrelHighTof_;
-    std::vector<PSimHit> trackerHitsPixelBarrelLowTof_;
-    std::vector<PSimHit> trackerHitsPixelEndcapHighTof_;
-    std::vector<PSimHit> trackerHitsPixelEndcapLowTof_;
-    std::vector<PSimHit> trackerHitsTECHighTof_;
-    std::vector<PSimHit> trackerHitsTECLowTof_;
-    std::vector<PSimHit> trackerHitsTIBHighTof_;
-    std::vector<PSimHit> trackerHitsTIBLowTof_;
-    std::vector<PSimHit> trackerHitsTIDHighTof_;
-    std::vector<PSimHit> trackerHitsTIDLowTof_;
-    std::vector<PSimHit> trackerHitsTOBHighTof_;
-    std::vector<PSimHit> trackerHitsTOBLowTof_;
-    std::vector<PCaloHit> hcalHits_;
-    std::vector<PCaloHit> zdcHits_;
-    std::vector<PSimHit> bcm1fHits_;
-    std::vector<PSimHit> bhmHits_;
-    std::vector<PSimHit> ctppsPixelHits_;
-    std::vector<PSimHit> ctppsTimingHits_;
-    std::vector<PCaloHit> calibrationHGCHitsEE_;
-    std::vector<PCaloHit> calibrationHGCHitsHEback_;
-    std::vector<PCaloHit> calibrationHGCHitsHEfront_;
-    std::vector<PCaloHit> caloHitsTk_;
-    std::vector<PCaloHit> ecalHitsEB_;
-    std::vector<PCaloHit> hfnoseHits_;
-};
-
-HGCalProducerSimHit::HGCalProducerSimHit(const edm::ParameterSet& iConfig)
-    : infoFileName_(iConfig.getParameter<std::string>("infoFileName")),
-      geomTokenEE_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", "HGCalEESensitive"})),
-      geomTokenHESil_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", "HGCalHESiliconSensitive"})),
-      geomTokenHESci_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", "HGCalHEScintillatorSensitive"})){	      
-      produces<edm::PCaloHitContainer>("HGCHitsEE");
-      produces<edm::PCaloHitContainer>("HGCHitsHEback");
-      produces<edm::PCaloHitContainer>("HGCHitsHEfront");     
-      produces<std::vector<PSimHit>>("FastTimerHitsBarrel");
-      produces<std::vector<PSimHit>>("FastTimerHitsEndcap");
-      produces<std::vector<SimTrack>>("");
-      produces<std::vector<SimVertex>>("");     
-      produces<std::vector<PSimHit>>("MuonCSCHits");
-      produces<std::vector<PSimHit>>("MuonDTHits");
-      produces<std::vector<PSimHit>>("MuonGEMHits");
-      produces<std::vector<PSimHit>>("MuonME0Hits");
-      produces<std::vector<PSimHit>>("MuonRPCHits");
-      produces<std::vector<PSimHit>>("PLTHits");
-      produces<std::vector<PSimHit>>("TrackerHitsPixelBarrelHighTof");
-  produces<std::vector<PSimHit>>("TrackerHitsPixelBarrelLowTof");
-  produces<std::vector<PSimHit>>("TrackerHitsPixelEndcapHighTof");
-  produces<std::vector<PSimHit>>("TrackerHitsPixelEndcapLowTof");
-  produces<std::vector<PSimHit>>("TrackerHitsTECHighTof");
-  produces<std::vector<PSimHit>>("TrackerHitsTECLowTof");
-  produces<std::vector<PSimHit>>("TrackerHitsTIBHighTof");
-  produces<std::vector<PSimHit>>("TrackerHitsTIBLowTof");
-  produces<std::vector<PSimHit>>("TrackerHitsTIDHighTof");
-  produces<std::vector<PSimHit>>("TrackerHitsTIDLowTof");
-  produces<std::vector<PSimHit>>("TrackerHitsTOBHighTof");
-  produces<std::vector<PSimHit>>("TrackerHitsTOBLowTof");
-  produces<std::vector<PCaloHit>>("HcalHits");
-  produces<std::vector<PCaloHit>>("ZDCHITS");
-  produces<std::vector<PSimHit>>("BCM1FHits");
-  produces<std::vector<PSimHit>>("BHMHits");
-  produces<std::vector<PSimHit>>("CTPPSPixelHits");
-  produces<std::vector<PSimHit>>("CTPPSTimingHits");
-      produces<std::vector<PCaloHit>>("CalibrationHGCHitsEE");
-  produces<std::vector<PCaloHit>>("CalibrationHGCHitsHEback");
-  produces<std::vector<PCaloHit>>("CalibrationHGCHitsHEfront");
-  produces<std::vector<PCaloHit>>("CaloHitsTk");
-  produces<std::vector<PCaloHit>>("EcalHitsEB");
-  produces<std::vector<PCaloHit>>("HFNoseHits");
-      }
-
-void HGCalProducerSimHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-   
-  auto  HGCHitsEE = std::make_unique<edm::PCaloHitContainer>();
-    auto HGCHitsHEback = std::make_unique<edm::PCaloHitContainer>();
-    auto HGCHitsHEfront = std::make_unique<edm::PCaloHitContainer>();
-  edm::ESHandle<HGCalGeometry> geomHandleEE;
-  edm::ESHandle<HGCalGeometry> geomHandleHESil;
-  edm::ESHandle<HGCalGeometry> geomHandleHESci;
-
-  // Attempt to retrieve HGCalGeometry using the provided token
-  try {
-    geomHandleEE = iSetup.getHandle(geomTokenEE_);
-    geomHandleHESil = iSetup.getHandle(geomTokenHESil_);
-    geomHandleHESci = iSetup.getHandle(geomTokenHESci_);
-  } catch (cms::Exception& e) {
-    edm::LogError("HGCalRawDet") << "Failed to retrieve HGCalGeometry: " << e.what();
-    throw;
-  }
-
-  // Check if the handle is valid before proceeding
-  if (!geomHandleEE.isValid() || !geomHandleHESil.isValid() || !geomHandleHESci.isValid()) {
-    edm::LogError("HGCalRawDet") << "Failed to retrieve valid HGCalGeometry!";
-    throw cms::Exception("DataError") << "Failed to retrieve valid HGCalGeometry!";
-  }
-  const HGCalGeometry& geomEE = *geomHandleEE;
-  const HGCalGeometry& geomHESil = *geomHandleHESil;
-  const HGCalGeometry& geomHESci = *geomHandleHESci;
-
-  // Debug output to confirm HGCalGeometry is loaded
-  edm::LogInfo("HGCalRawDet") << "Successfully retrieved HGCalGeometry.";
-
-
-std::ifstream inputFile(infoFileName_);
-  if (!inputFile.is_open()) {
-    throw cms::Exception("FileOpenError") << "Failed to open file: " << infoFileName_;
-  }
-   
-  std::string line;
-  int lineNumber = 0;
-  int itra =0;
-  while (std::getline(inputFile, line)) {
-    lineNumber++;
-     std::cout<<"linenumber" <<lineNumber<<std::endl;
-    std::istringstream iss(line);
-     uint32_t detId;
-    int det_type, wafer_type, z_side, layer_number;
-    int abs_u, abs_v, u_coordinate, v_coordinate;
-    int layertype, frontBack, index_;
-    int partialType, orient, placeIndex, waferType_;
-
-    char delimiter;
-
-    if (!(iss >> detId >> delimiter
-              >> det_type >> delimiter
-              >> layer_number)) {
-     edm::LogWarning("HGCalRawDet") << "Skipping invalid data at line " << lineNumber<< ": " << line;
-      continue;
-    }
- 
-    
-    
- 
-
-   float  em=1;
-   float time = 20;
-   float energy = 0.0002;
-   int itra = 0;
-   PCaloHit newHit; 
- 
-  
-   newHit = PCaloHit(detId,energy, time, itra, em, 0);
-
-
-if ( det_type==8) {
-        HGCHitsEE->push_back(newHit);
-      } else if ((det_type==9 || det_type==10) &&(layer_number>=1 && layer_number<=11) ) {
-        HGCHitsHEfront->push_back(newHit);
-      } else if((det_type==9 || det_type==10) && layer_number>11){
-        HGCHitsHEback->push_back(newHit);
-      }
-  }
-
-
-inputFile.close();
-
-iEvent.put(std::move(HGCHitsEE), "HGCHitsEE");
-iEvent.put(std::move(HGCHitsHEback), "HGCHitsHEback");
-iEvent.put(std::move(HGCHitsHEfront), "HGCHitsHEfront");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(hitsBarrel_), "FastTimerHitsBarrel");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(hitsEndcap_), "FastTimerHitsEndcap");
-iEvent.put(std::make_unique<std::vector<SimTrack>>(simTracks_), "");
-iEvent.put(std::make_unique<std::vector<SimVertex>>(simVertices_), "");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(muonCSCHits_), "MuonCSCHits");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(muonDTHits_), "MuonDTHits");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(muonGEMHits_), "MuonGEMHits");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(muonME0Hits_), "MuonME0Hits");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(muonRPCHits_), "MuonRPCHits");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(plTHits_), "PLTHits");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsPixelBarrelHighTof_), "TrackerHitsPixelBarrelHighTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsPixelBarrelLowTof_), "TrackerHitsPixelBarrelLowTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsPixelEndcapHighTof_), "TrackerHitsPixelEndcapHighTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsPixelEndcapLowTof_), "TrackerHitsPixelEndcapLowTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTECHighTof_), "TrackerHitsTECHighTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTECLowTof_), "TrackerHitsTECLowTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTIBHighTof_), "TrackerHitsTIBHighTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTIBLowTof_), "TrackerHitsTIBLowTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTIDHighTof_), "TrackerHitsTIDHighTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTIDLowTof_), "TrackerHitsTIDLowTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTOBHighTof_), "TrackerHitsTOBHighTof");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(trackerHitsTOBLowTof_), "TrackerHitsTOBLowTof");
-iEvent.put(std::make_unique<std::vector<PCaloHit>>(hcalHits_), "HcalHits");
-iEvent.put(std::make_unique<std::vector<PCaloHit>>(zdcHits_), "ZDCHITS");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(bcm1fHits_), "BCM1FHits");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(bhmHits_), "BHMHits");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(ctppsPixelHits_), "CTPPSPixelHits");
-iEvent.put(std::make_unique<std::vector<PSimHit>>(ctppsTimingHits_), "CTPPSTimingHits");
-iEvent.put(std::make_unique<std::vector<PCaloHit>>(calibrationHGCHitsEE_), "CalibrationHGCHitsEE");
-iEvent.put(std::make_unique<std::vector<PCaloHit>>(calibrationHGCHitsHEback_), "CalibrationHGCHitsHEback");
-iEvent.put(std::make_unique<std::vector<PCaloHit>>(calibrationHGCHitsHEfront_), "CalibrationHGCHitsHEfront");
-iEvent.put(std::make_unique<std::vector<PCaloHit>>(caloHitsTk_), "CaloHitsTk");
-iEvent.put(std::make_unique<std::vector<PCaloHit>>(ecalHitsEB_), "EcalHitsEB");
-iEvent.put(std::make_unique<std::vector<PCaloHit>>(hfnoseHits_), "HFNoseHits");
-}
-
-DEFINE_FWK_MODULE(HGCalProducerSimHit);
-
-#endif // HGCALPRODUCERSIMHIT_H
-```
-</details>
-
-- **Configuration File**: `HGCalProducerSimHit_cfi.py`  
-  Found in the `python` directory, this file configures the producer for CMSSW execution. You must specify the path to your quried DetId csv file for input here.
-
-<details>
-  <summary>Show HGCalProducerSimHit_cfi.py </summary>
-
-```python
-import FWCore.ParameterSet.Config as cms
-
-# Import the era to configure the process
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-
-# Define the process with the appropriate era
-process = cms.Process('SIM', Phase2C17I13M9)
-
-process.load('Configuration.StandardSequences.Services_cff')
-process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
-process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
-process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
-process.load('GeneratorInterface.Core.genFilterSummary_cff')
-process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
-process.load("SimG4Core.Application.g4SimHits_cfi")
-# Optional: Include specific sub-detector simulation configurations
-
-# Input source
-process.source = cms.Source("EmptySource")
-
-
-process.options = cms.untracked.PSet(
-    IgnoreCompletely = cms.untracked.vstring(),
-    Rethrow = cms.untracked.vstring(),
-    TryToContinue = cms.untracked.vstring(),
-    accelerators = cms.untracked.vstring('*'),
-    allowUnscheduled = cms.obsolete.untracked.bool,
-    canDeleteEarly = cms.untracked.vstring(),
-    deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
-    dumpOptions = cms.untracked.bool(False),
-    emptyRunLumiMode = cms.obsolete.untracked.string,
-    eventSetup = cms.untracked.PSet(
-        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
-            allowAnyLabel_=cms.required.untracked.uint32
-        ),
-        numberOfConcurrentIOVs = cms.untracked.uint32(0)
-    ),
-    fileMode = cms.untracked.string('FULLMERGE'),
-    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
-    holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
-    makeTriggerResults = cms.obsolete.untracked.bool,
-    modulesToCallForTryToContinue = cms.untracked.vstring(),
-    modulesToIgnoreForDeleteEarly = cms.untracked.vstring(),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
-    numberOfConcurrentRuns = cms.untracked.uint32(1),
-    numberOfStreams = cms.untracked.uint32(0),
-    numberOfThreads = cms.untracked.uint32(1),
-    printDependencies = cms.untracked.bool(False),
-    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
-    throwIfIllegalParameter = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(False)
-)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)  # Set to the number of events you want to simulate
-)
-
-# Event content configuration (output all data)
-process.load('Configuration.EventContent.EventContent_cff')
-
-# Configure the output
-process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
-        SelectEvents = cms.untracked.PSet(
-            SelectEvents = cms.vstring('generation_step')
-    ),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('GEN-SIM'),
-        filterName = cms.untracked.string('')
-    ),
-    fileName = cms.untracked.string('file:../Root_Files/step1.root'),
-    outputCommands = cms.untracked.vstring(
-        'keep *',
-    
-    ),
-    splitLevel = cms.untracked.int32(0)
-)
-
-
-# Other statements
-process.genstepfilter.triggerConditions=cms.vstring("generation_step")
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33', '')
-
-process.generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
-    PythiaParameters = cms.PSet(
-        parameterSets = cms.vstring(
-            'pythia8CommonSettings',
-            'pythia8CP5Settings',
-            'processParameters'
-        ),
-        processParameters = cms.vstring(
-            'Top:gg2ttbar = on ',
-            'Top:qqbar2ttbar = on ',
-            '6:m0 = 175 '
-        ),
-        pythia8CP5Settings = cms.vstring(
-            'Tune:pp 14',
-            'Tune:ee 7',
-            'MultipartonInteractions:ecmPow=0.03344',
-            'MultipartonInteractions:bProfile=2',
-            'MultipartonInteractions:pT0Ref=1.41',
-            'MultipartonInteractions:coreRadius=0.7634',
-            'MultipartonInteractions:coreFraction=0.63',
-            'ColourReconnection:range=5.176',
-            'SigmaTotal:zeroAXB=off',
-            'SpaceShower:alphaSorder=2',
-            'SpaceShower:alphaSvalue=0.118',
-            'SigmaProcess:alphaSvalue=0.118',
-            'SigmaProcess:alphaSorder=2',
-            'MultipartonInteractions:alphaSvalue=0.118',
-            'MultipartonInteractions:alphaSorder=2',
-            'TimeShower:alphaSorder=2',
-            'TimeShower:alphaSvalue=0.118',
-            'SigmaTotal:mode = 0',
-            'SigmaTotal:sigmaEl = 21.89',
-            'SigmaTotal:sigmaTot = 100.309',
-            'PDF:pSet=LHAPDF6:NNPDF31_nnlo_as_0118'
-        ),
-        pythia8CommonSettings = cms.vstring(
-            'Tune:preferLHAPDF = 2',
-            'Main:timesAllowErrors = 10000',
-            'Check:epTolErr = 0.01',
-            'Beams:setProductionScalesFromLHEF = off',
-            'SLHA:minMassSM = 1000.',
-            'ParticleDecays:limitTau0 = on',
-            'ParticleDecays:tau0Max = 10',
-            'ParticleDecays:allowPhotonRadiation = on'
-        )
-    ),
-    comEnergy = cms.double(14000.0),
-    filterEfficiency = cms.untracked.double(1.0),
-    maxEventsToPrint = cms.untracked.int32(0),
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    pythiaPylistVerbosity = cms.untracked.int32(0)
-)
-
-
-process.ProductionFilterSequence = cms.Sequence(process.generator)
-# Define paths
-process.generation_step = cms.Path(process.pgen)
-process.psim = cms.Path(process.psim)
-
-# Define the DetIdNewProducer module (HGCalProducerSimHit) with the input CSV file
-process.g4SimHits = cms.EDProducer('HGCalProducerSimHit',
-    infoFileName = cms.string("quried_detid_output.csv"),
-    CalibrationHGCHitsEE = cms.InputTag("g4SimHits", "CalibrationHGCHitsEE"),
-    CalibrationHGCHitsHEback = cms.InputTag("g4SimHits", "CalibrationHGCHitsHEback"),
-    CalibrationHGCHitsHEfront = cms.InputTag("g4SimHits", "CalibrationHGCHitsHEfront"),
-    CaloHitsTk = cms.InputTag("g4SimHits", "CaloHitsTk"),
-    EcalHitsEB = cms.InputTag("g4SimHits", "EcalHitsEB"),
-    HFNoseHits = cms.InputTag("g4SimHits", "HFNoseHits"),
-    HGCHitsEE = cms.InputTag("g4SimHits", "HGCHitsEE"),
-    HGCHitsHEback = cms.InputTag("g4SimHits", "HGCHitsHEback"),
-    HGCHitsHEfront = cms.InputTag("g4SimHits", "HGCHitsHEfront"),
-    HcalHits = cms.InputTag("g4SimHits", "HcalHits"),
-    ZDCHITS = cms.InputTag("g4SimHits", "ZDCHITS"),
-
-    # Input tags for PSimHit collections
-    BCM1FHits = cms.InputTag("g4SimHits", "BCM1FHits"),
-    BHMHits = cms.InputTag("g4SimHits", "BHMHits"),
-    CTPPSPixelHits = cms.InputTag("g4SimHits", "CTPPSPixelHits"),
-    CTPPSTimingHits = cms.InputTag("g4SimHits", "CTPPSTimingHits"),
-    FastTimerHitsBarrel = cms.InputTag("g4SimHits", "FastTimerHitsBarrel"),
-    FastTimerHitsEndcap = cms.InputTag("g4SimHits", "FastTimerHitsEndcap"),
-    MuonCSCHits = cms.InputTag("g4SimHits", "MuonCSCHits"),
-    MuonDTHits = cms.InputTag("g4SimHits", "MuonDTHits"),
-    MuonGEMHits = cms.InputTag("g4SimHits", "MuonGEMHits"),
-    MuonME0Hits = cms.InputTag("g4SimHits", "MuonME0Hits"),
-    MuonRPCHits = cms.InputTag("g4SimHits", "MuonRPCHits"),
-    PLTHits = cms.InputTag("g4SimHits", "PLTHits"),
-    TrackerHitsPixelBarrelHighTof = cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
-    TrackerHitsPixelBarrelLowTof = cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
-    TrackerHitsPixelEndcapHighTof = cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
-    TrackerHitsPixelEndcapLowTof = cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
-    TrackerHitsTECHighTof = cms.InputTag("g4SimHits", "TrackerHitsTECHighTof"),
-    TrackerHitsTECLowTof = cms.InputTag("g4SimHits", "TrackerHitsTECLowTof"),
-    TrackerHitsTIBHighTof = cms.InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
-    TrackerHitsTIBLowTof = cms.InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
-    TrackerHitsTIDHighTof = cms.InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
-    TrackerHitsTIDLowTof = cms.InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
-    TrackerHitsTOBHighTof = cms.InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
-    TrackerHitsTOBLowTof = cms.InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
-
-    # Input tags for SimTrack and SimVertex collections
-    SimTracks = cms.InputTag("g4SimHits", "SimTrack"),
-    SimVertices = cms.InputTag("g4SimHits", "SimVertex") 
-)
-
-process.g4SimHits_step = cms.Path(process.g4SimHits)
-
-process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-process.endjob_step = cms.EndPath(process.endOfProcess)
-process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
-
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.g4SimHits_step,process.psim,process.endjob_step,process.FEVTDEBUGoutput_step)
-
-from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
-associatePatAlgosToolsTask(process)
-# filter all path with the production filter sequence
-for path in process.paths:
-    getattr(process,path).insert(0, process.ProductionFilterSequence)
-
-
-from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
-process = customiseEarlyDelete(process)
-
-# Options to continue on error
-process.options = cms.untracked.PSet(
-    TryToContinue = cms.untracked.vstring('ProductNotFound')
-)
-```
-</details>
-
-**How to Run**
-
-To run the producer and generate `step1.root`, follow these steps:
-
-```
-cd src/PhysicsTools/PatExamples/python
-cmsRun HGCalProducerSimHit_cfi.py
-```
-
-**Output** :  Step1.root
-- Generated by the custom SimHit producer.
-- Initial processed hits (`pCaloHits`) with validated DetIds.
-- **Used as input** for the next stage of CMSSW processing.
-
----
-
-### Step 3: Multi-Step Processing Pipeline
-
-The raw SimHit data undergoes a multi-step processing pipeline. Each step builds upon the previous one, refining the data through official CMS workflows.
-
-
-#### Step a : `step2.root`
-- **Purpose**: Simulates digitization, trigger, and HLT chain from the `step1.root` file.
-
-- **Command**:
-```bash
-cmsDriver.py step2  -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4 --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-DIGI-RAW -n 1 --eventcontent FEVTDEBUGHLT --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step1.root  --fileout file:step2.root  > step2.log  2>&1
-```
-
-#### Step b : `step3.root`
-
-**Purpose**:  
-Performs full reconstruction (`RECO`), Physics Analysis Toolkit (`PAT`) processing, and complete validation including **Data Quality Monitoring (DQM)**. This is the final step that transforms simulated detector output into high-level physics objects ready for analysis.
-
-**Command**:
-```bash
-cmsDriver.py step3  -s RAW2DIGI,RECO,RECOSIM,PAT,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-RECO,MINIAODSIM,DQMIO -n 1 --eventcontent FEVTDEBUGHLT,MINIAODSIM,DQM --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step2.root  --fileout file:step3.root  > step3.log  2>&1
-
-```
----
-
-### Step 4: Visualization with Fireworks
-
-**Purpose**:  
-This step allows users to visually inspect the simulated detector hits and validated DetIds using the **Fireworks** event display tool in CMSSW. It helps confirm that hits are correctly mapped to the detector geometry and provides a powerful way to debug or showcase events.
-
-
-#### Steps to Visualize Raw DetIDs
-
-1. **Generate the Geometry File**  
-   Use the following command to create a detector geometry file compatible with Fireworks, based on the 2026 D110 configuration:
-
-```bash
-cd $CMSSW/src
-cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=Run4 version=D110
-```
-
-- This command generates the geometry file: cmsSimGeom-2026D110.root.
-
-2. **Run Fireworks for Visualization**
-
-Use the generated geometry file along with your simulation output (`step3.root`) to launch the Fireworks GUI and visualize the raw `DetIds`.
-
-#### Command:
-
-```bash
-cmsShow --sim-geom-file cmsSimGeom-Run4D110.root PhysicsTools/PatExamples/Root_Files/step3.root
-```
-
----
 
 ## Folder Structure
 
