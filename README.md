@@ -842,7 +842,7 @@ To run the producer and generate `step1.root`, follow these steps:
 The raw SimHit data undergoes a multi-step processing pipeline. Each step builds upon the previous one, refining the data through official CMS workflows.
 
 
-#### Step a : `step2.root`
+#### Step a : `step2.root` Generation
 - **Purpose**: Simulates digitization, trigger, and HLT chain from the `step1.root` file.
 
 - **Command**:
@@ -850,7 +850,7 @@ The raw SimHit data undergoes a multi-step processing pipeline. Each step builds
 >> cmsDriver.py step2  -s DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4 --conditions auto:phase2_realistic_T33 --datatier GEN-SIM-DIGI-RAW -n 1 --eventcontent FEVTDEBUGHLT --geometry ExtendedRun4D110 --era Phase2C17I13M9 --filein  file:step1.root  --fileout file:step2.root  > step2.log  2>&1
 ```
 
-#### Step b : `step3.root`
+#### Step b : `step3.root` Generation
 
 **Purpose**:  
 Performs full reconstruction (`RECO`), Physics Analysis Toolkit (`PAT`) processing, and complete validation including **Data Quality Monitoring (DQM)**. This is the final step that transforms simulated detector output into high-level physics objects ready for analysis.
