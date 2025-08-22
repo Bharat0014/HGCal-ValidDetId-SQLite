@@ -29,7 +29,7 @@ This step is about setting up the **CMSSW environment** so that both admin and u
 <details>
   <summary>Click here</summary>
 
-### 1. Set Up the CMSSW Environment
+### 1. Set Up the CMSSW Environment.
 
 
 First login to your lxplus account then Set up the environment as follows:
@@ -42,7 +42,7 @@ cd CMSSW_15_1_0_pre4/src
 cmsenv
 ```
 
-### 2. Unpack necessary Package for HGcal Geometery
+### 2. Unpack necessary Package for HGcal Geometery.
 
 ```
 git cms-addpkg Geometry/CMSCommonData
@@ -61,7 +61,7 @@ git clone https://github.com/Bharat0014/HGCal-ValidDetId-SQLite.git
 scram b -j8
 ```
 
-### 4. Path to Pre-generated SimHit Dataset and SQLite Output
+### 4. Path to Pre-generated SimHit Dataset and SQLite Output.
 
 ```
 Raw detIds (detid_list_all_combinations.csv)
