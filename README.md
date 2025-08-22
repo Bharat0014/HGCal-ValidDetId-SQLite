@@ -88,7 +88,7 @@ Producer output (step1.root)
 
 ## Admin Workflow (Once per Release)
 
-This setup is required **once per each HGCal geometry release** to first validate and then store valid DetIds in Sqlite databse.
+This setup has to be used by the Admin and it is required to be executed **ONLY once per each HGCal geometry release** to first validate and then store valid DetIds in Sqlite databse for a new release of the geometry.
 
 
 ###  Step A : DetId Definition and Raw CSV Creation (Pre validation)
