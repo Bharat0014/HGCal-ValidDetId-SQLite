@@ -8,7 +8,7 @@ The workflow is split into **User Workflow** and **Admin Setup (once per Geomete
 ---
 
  ## Table of Contents
-- [Enviroment Setup For User And Admin Both](#Enviroment-Setup-for-aUser-And-Admin-Both)
+- [Enviroment Setup For User And Admin Both](#Enviroment-Setup-for-User-And-Admin-Both)
 - [User Workflow](#user-workflow)
   - [Step 1: Use the Provided SQLite DB and Run Queries](#step-1-use-the-provided-sqlite-db-and-run-queries)
   - [Step 2: Development of SimHit Producer](#step-2-development-of-simhit-producer)
