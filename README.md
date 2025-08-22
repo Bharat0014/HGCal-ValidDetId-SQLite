@@ -899,7 +899,7 @@ This setup has to be used by the Admin and it is required to be executed **ONLY 
 
 ###  Step A : DetId Definition And Raw CSV Creation (Pre Validation)
 
-In this step, we create a complete list of all possible Combination of DetIds for the given DetIds definations in the table below: [DetId Definations (Pre validation)](#DetId-Definations-(Pre-validation)). Then we store each created detIds in the CSV file for each of the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables. Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). We do this to make sure we include every possible detector location. These tables follow the official HGCal DetId format and the stroed detIds will be used in the next step to check the detIds against the actual detector layout. 
+In this step, we create a complete list of all possible Combination of DetIds for the given DetIds definations in the table below: [DetId Definations (Pre validation)](#DetId-Definations-(Pre-validation)). Then we store each created detIds in the CSV file for each of the HGCal subdetectors—EE, HE Silicon, and HE Scintillator—using the bit patterns shown in the tables. Each DetId is a unique code that describes a part of the detector, such as its layer number, wafer or tile type, and position (u and v for silicon; ring and iPhi for scintillator). This step ensures that every possible detector location is included. These tables follow the official HGCal DetId format and the stroed detIds will be used in the next step to check the detIds against the actual detector layout. 
 
 #### DetId Definations (Pre validation) 
 
