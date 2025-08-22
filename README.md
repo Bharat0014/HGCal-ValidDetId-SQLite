@@ -66,7 +66,8 @@ First login to your lxplus account then Set up the environment as follows:
 
 ```
 Raw detIds (detid_list_all_combinations.csv)
->> wget [https://cernbox.cern.ch/s/QYeBlRIib2XMP4G](#https://cernbox.cern.ch/s/QYeBlRIib2XMP4G)
+
+>> wget [https://cernbox.cern.ch/s/QYeBlRIib2XMP4G](https://cernbox.cern.ch/s/QYeBlRIib2XMP4G)
 
 Sqlite database for V17 (detid_data_all_feature.db)
 https://cernbox.cern.ch/s/oaIpes2jVCXOYib
