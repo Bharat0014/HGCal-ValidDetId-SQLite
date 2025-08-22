@@ -113,17 +113,17 @@ In this step, we create a complete list of all possible DetIds for each of the H
 
 ##### HE Scintillator
 
-| Parameter           | Bit Position | Bit Length | Value Range                     |
-|--------------------|--------------|------------|---------------------------------|
-| Detector Type       | 28–31        | 4 bits     | 10 (HGCalHSc = 1010)            |
-| Tile Type           | 26–27        | 2 bits     | 1 (type "c"), 2 (type "m")      |
-| Z Side              | 25           | 1 bit      | 0 for +z, 1 for –z              |
-| Granularity         | 24–24        | 1 bit      | 0 (normal), 1 (fine)            |
-| SiPM Type           | 23–23        | 1 bit      | 0 (small), 1 (large)            |
-| Trigger/Detector Cell | 22–22      | 1 bit      | 0 (Detector), 1 (Trigger)       |
-| Layer Number        | 17–21        | 5 bits     | 8 to 21                         |
-| Ring Index          | 9–16         | 8 bits     | 11 to 50                        |
-| iPhi Index          | 0–8          | 9 bits     | 0 to 380                        |
+| Parameter           | Bit Position | Bit Length | Value Range                     | Acceptable Combination |
+|--------------------|--------------|------------|---------------------------------|-------------------------|
+| Detector Type       | 28–31        | 4 bits     | 10 (HGCalHSc = 1010)            |1                       |
+| Tile Type           | 26–27        | 2 bits     | 1 (type "c"), 2 (type "m")      |2						 |
+| Z Side              | 25           | 1 bit      | 0 for +z, 1 for –z              |2                       |
+| Granularity         | 24–24        | 1 bit      | 0 (normal), 1 (fine)            |2                       | 
+| SiPM Type           | 23–23        | 1 bit      | 0 (small), 1 (large)            |2                       |
+| Trigger/Detector Cell | 22–22      | 1 bit      | 0 (Detector), 1 (Trigger)       |2                       |
+| Layer Number        | 17–21        | 5 bits     | 8 to 21                         |14                      |
+| Ring Index          | 9–16         | 8 bits     | 11 to 50                        |39                      |
+| iPhi Index          | 0–8          | 9 bits     | 0 to 380                        |381                     |
 
 
 </details>
