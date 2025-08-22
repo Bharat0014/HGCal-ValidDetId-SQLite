@@ -38,7 +38,7 @@ First, ensure you are using the correct CMSSW version. Set up the environment as
 # Load the CMSSW version
 cd /path/to/your/working/directory
 cmsrel CMSSW_15_1_0_pre4
-cd CMSSW_14_1_0_pre4/src
+cd CMSSW_15_1_0_pre4/src
 cmsenv
 ```
 
