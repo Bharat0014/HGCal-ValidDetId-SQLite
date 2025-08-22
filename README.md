@@ -129,9 +129,12 @@ In this step, we create a complete list of all possible DetIds for the HGCal sub
 </details>
 
 
-**How to Run**  
+The `DetIDRaw.py` script is responsible for generating the **raw Detector IDs (DetIDs)**.  
+
+- The code is listed below:
+
 <details>
-  <summary>Code</summary>
+  <summary>Show DetIDRaw.py code</summary>
 
 ```python
 #DetIDRaw.py
@@ -249,6 +252,7 @@ print(f"\nGenerated all possible HGCal DetIDs (Silicon and Scintillator) and sto
 
 </details>
 
+**How to Run**  
 ```
 cd src/PhysicsTools/PatExamples/Raw_detids/
 python3 DetIDRaw.py
