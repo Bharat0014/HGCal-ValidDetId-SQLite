@@ -8,7 +8,7 @@ The workflow is split into **User Workflow** and **Admin Setup (once per Geomete
 ---
 
  ## Table of Contents
-- [Enviroment Setup For Admin And User Both](#Enviroment-Setup-for-admin-and-user-both)
+- [Enviroment Setup For User And Admin Both](#Enviroment-Setup-for-aUser-And-Admin-Both)
 - [User Workflow](#user-workflow)
   - [Step 1: Use the Provided SQLite DB and Run Queries](#step-1-use-the-provided-sqlite-db-and-run-queries)
   - [Step 2: Development of SimHit Producer](#step-2-development-of-simhit-producer)
@@ -22,7 +22,7 @@ The workflow is split into **User Workflow** and **Admin Setup (once per Geomete
 
 ---
 
-## Enviroment Setup For Admin And User Both
+## Enviroment Setup For User And Admin Both
 
 This step is about setting up the **CMSSW environment** so that both admin and user can access all the necessary tools for this workflow. It also provides access to the relevant codes used in this work and connects to the **pre-calibrated database for HGCal geometry (version 17)**.
 
