@@ -62,7 +62,7 @@ First login to your lxplus account then Set up the environment as follows:
 ```
 **scarm b -j8** - This command is for compaliation of the cmssw code and the **-j8** is used to achive the good compilation speed through 8 cores.  
 
-### 4. Path to Pre-generated SimHit Dataset and SQLite Output.
+### 4. Downlod the Pre-generated SimHit and SQLite Dataset (For User Only).
 
 ```
 Raw detIds (detid_list_all_combinations.csv)
