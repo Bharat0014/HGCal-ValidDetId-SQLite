@@ -3,7 +3,7 @@
 
 This repository explains how **ValidDetIds** are used in the High Granularity Calorimeter (HGCal) geometry of CMS. The process includes creating raw DetIds, checking and validating them, storing them in the SQLite database, and generating SimHits (PCaloHits). Finally, the results can be visualized using Fireworks.
 
-The workflow is split into **User Workflow** and **Admin Setup (once per Geometery release)**.
+The workflow is split into **User Workflow** and **Admin Setup (once per geometery release)**.
 
 ---
 
