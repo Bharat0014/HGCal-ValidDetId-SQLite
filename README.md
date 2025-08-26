@@ -199,7 +199,8 @@ conn.close()
 
 
 **How to Run**
-	 **1. Show Available Tables and Columns**
+
+**1. Show Available Tables and Columns**
 
 Running the script with the `--help` option will **list all available tables in the SQLite database** and **column descriptions**. This is useful when you want to understand the structure of the detector database before writing queries. It helps user to quickly check what kind of information is available in the database.
 ```
@@ -207,6 +208,10 @@ Running the script with the `--help` option will **list all available tables in 
 >> python3 sqliteuser.py --help
 ```
 **Terminal Output**
+
+<details>
+  <summary>Click Here </summary>
+
 ```
  Available tables:
 
@@ -242,6 +247,7 @@ Running the script with the `--help` option will **list all available tables in 
 
 
 ```
+</details>
 ```
 >> cd src/PhysicsTools/PatExamples/python
 >> python3 sqliteuser.py
