@@ -244,8 +244,6 @@ Running the script with the `--help` option will **list all available tables in 
    - Granularity  : Granularity of scintillator detector
    - eta          : Pseudorapidity of the cell center
    - phi          : Azimuthal angle of the cell center
-
-
 ```
 </details>
 
@@ -262,7 +260,6 @@ The following query conditions are provided as examples in the script and can be
  (Zside = -1 AND LayerType = 2) OR (FrontBack = 1 AND WaferType = 3)
  (eta > 1.5 AND eta < 2.5) AND Granularity = 0
  (CassetteType = 2 AND Orient = 1) OR (AbsU BETWEEN 5 AND 12 AND AbsV BETWEEN 1  AND 5)
-
 ```
 
 Once the query is set, simply run:
@@ -280,43 +277,30 @@ Once the query is set, simply run:
 
 
 ```
-📦 Available tables:
-1: hgcal_detids_v5
 
-Enter the number of the table to use: 1
+ Selected table: hgcal_detids_v5
 
-🧾 Available columns:
-- DetId
-- Zside
-- DetType
-- Nlayer
-- LayerType
-- FrontBack
-- WaferType
-- WaferIndex
-- PartType
-- Cassette
-- CassetteType
-- Orient
-- AbsU
-- AbsV
-- CellU
-- CellV
-- x
-- y
-- z
-- TileType
-- SipmType
-- TriggerCell
-- RingIndex
-- IphiIndex
-- Granularity
-- eta
-- phi
+ Query condition: X > 200
 
-Enter your SQL WHERE condition using AND / OR / BETWEEN, etc.
-Example: (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15
->> (here you can write your query)
+ Query execution time: 4.1730 seconds
+ Found 9328 matching entries:
+(2752658947, 10, 9)
+(2752658948, 10, 9)
+(2752658949, 10, 9)
+(2752658950, 10, 9)
+(2752659227, 10, 9)
+(2752659228, 10, 9)
+(2752659229, 10, 9)
+(2752659230, 10, 9)
+(2752659459, 10, 9)
+(2752659460, 10, 9)
+
+ Counts by DetType:
+  DetType = 8 : 0
+  DetType = 9 : 0
+  DetType = 10: 9328
+
+ Results saved to quried_detid_output.csv
 ```
 </details>
 
