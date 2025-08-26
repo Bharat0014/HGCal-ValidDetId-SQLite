@@ -277,7 +277,7 @@ Running the script with the `--help` option will **list all available tables in 
 **Terminal Output**
 
 <details>
-  <summary>Click Here </summary>
+  <summary>Terminal Output </summary>
 
 ```
  Available tables:
