@@ -391,17 +391,17 @@ The producer processes the raw hits stored in **quried_detid_output.csv** and ge
 - **Producer Code**: `HGCalProducerSimHit.cc`  
   Located in the `plugins` directory, this C++ code defines the logic for converting raw hits into `pCaloHits`.
 
-<details>
-  <summary>Show HGCalProducerSimHit.cc </summary>
+	<details>
+  		<summary>Show HGCalProducerSimHit.cc </summary>
 
-```cpp
+	```cpp
 
 
-// -*- C++ -*-
-//
-// Package:    HGCalDetIDvalidation/HGCalRawProducernew
-// Class:      
-//
+	// -*- C++ -*-
+	//
+	// Package:    HGCalDetIDvalidation/HGCalRawProducernew
+	// Class:      
+	//
 /*
 
  Description: Example module for raw detID validation store in Pcalo step1.root file 
@@ -710,7 +710,7 @@ DEFINE_FWK_MODULE(HGCalProducerSimHit);
 
 #endif // HGCALPRODUCERSIMHIT_H
 ```
-</details>
+	</details>
 
 - **Configuration File**: `HGCalProducerSimHit_cfi.py`  
   Found in the `python` directory, this file configures the producer for CMSSW execution. You must specify the path to your quried DetId csv file for input here.
