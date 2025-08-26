@@ -248,7 +248,29 @@ Running the script with the `--help` option will **list all available tables in 
 
 ```
 </details>
+
+**2. Run Quries**
+
+### 2. Run Queries
+
+For running custom queries, users can directly **edit the query section** inside the `sqliteread.py` script. Several example queries are already provided as **commented lines in the code**, which can be used as templates. Users can modify these queries according to their needs (e.g., selecting specific layers or  wafer types).  
+
+The following query conditions are provided as examples in the script and can be directly modified:
+
 ```
+ (WaferType = 2 AND Zside = -1) OR Nlayer BETWEEN 5 AND 15
+ (WaferType = 1 AND Zside = 1) AND Nlayer > 10
+ (DetType = 8 OR DetType = 9) AND Nlayer BETWEEN 5 AND 20
+ (Zside = -1 AND LayerType = 2) OR (FrontBack = 1 AND WaferType = 3)
+ (eta > 1.5 AND eta < 2.5) AND Granularity = 0
+ (CassetteType = 2 AND Orient = 1) OR (AbsU BETWEEN 5 AND 12 AND AbsV BETWEEN 1  AND 5)
+
+```
+
+Once the query is set, simply run:
+
+
+```bash
 >> cd src/PhysicsTools/PatExamples/python
 >> python3 sqliteuser.py
 ```
