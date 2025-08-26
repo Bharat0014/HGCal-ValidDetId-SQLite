@@ -251,8 +251,6 @@ Running the script with the `--help` option will **list all available tables in 
 
 **2. Run Quries**
 
-### 2. Run Queries
-
 For running custom queries, users can directly **edit the query section** inside the `sqliteread.py` script. Several example queries are already provided as **commented lines in the code**, which can be used as templates. Users can modify these queries according to their needs (e.g., selecting specific layers or  wafer types).  
 
 The following query conditions are provided as examples in the script and can be directly modified:
