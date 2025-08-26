@@ -199,6 +199,49 @@ conn.close()
 
 
 **How to Run**
+	 **1. Show Available Tables and Columns**
+
+Running the script with the `--help` option will **list all available tables in the SQLite database** and **column descriptions**. This is useful when you want to understand the structure of the detector database before writing queries. It helps user to quickly check what kind of information is available in the database.
+```
+>> cd src/PhysicsTools/PatExamples/python
+>> python3 sqliteuser.py --help
+```
+**Terminal Output**
+```
+ Available tables:
+
+1: hgcal_detids_v5
+  Columns with description:
+   - DetId        : Unique detector identifier
+   - Zside        : Detector side (1 = +z side, -1 = -z side)
+   - DetType      : Detector type (8 = CE-E, 9 = CE-H, 10 = CE-H scintillator)
+   - Nlayer       : Layer number within the detector stack
+   - LayerType    : Type of layer
+   - FrontBack    : Position in module
+   - WaferType    : Wafer type
+   - WaferIndex   : Unique index for wafers within a layer
+   - PartType     : Partition type
+   - Cassette     : Cassette identifier
+   - CassetteType : Cassette type
+   - Orient       : Wafer orientation flag
+   - AbsU         : Absolute U-coordinate of wafer
+   - AbsV         : Absolute V-coordinate of wafer
+   - CellU        : Cell coordinate U
+   - CellV        : Cell coordinate V
+   - x            : x-position (mm) of cell center in global coordinates
+   - y            : y-position (mm) of cell center in global coordinates
+   - z            : z-position (mm) of cell center in global coordinates
+   - TileType     : Scintillator tile type (for CE-H scintillator)
+   - SipmType     : SiPM sensor type used with scintillator tiles
+   - TriggerCell  : Trigger or cell type
+   - RingIndex    : Radial ring index
+   - IphiIndex    : Azimuthal φ index
+   - Granularity  : Granularity of scintillator detector
+   - eta          : Pseudorapidity of the cell center
+   - phi          : Azimuthal angle of the cell center
+
+
+```
 ```
 >> cd src/PhysicsTools/PatExamples/python
 >> python3 sqliteuser.py
