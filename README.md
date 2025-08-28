@@ -1963,7 +1963,8 @@ This `.csv` and `.db` file pair will be used in later steps (e.g., during simula
 
 ## 📬 Contact
 
-Maintainer: **Bharat Kumar Sirasva**, IISER Mohali
+Maintainer: **Bharat Kumar Sirasva**, IISER Mohali.
+
 If you have any queries, feel free to email - bsirasva@cern.ch.
 
 ---
