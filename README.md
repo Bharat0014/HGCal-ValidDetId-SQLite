@@ -2001,9 +2001,8 @@ This `.csv` and `.db` file pair will be used in later steps (e.g., during simula
 
 ## 📬 Contact
 
-For questions or contributions, feel free to open an issue or pull request.
-
 Maintainer: **Bharat Kumar Sirasva**, IISER Mohali
-
+If you have any queries, feel free to email.
+Email - bsirasva@cern.ch
 ---
 
