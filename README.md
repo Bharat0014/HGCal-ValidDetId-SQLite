@@ -1196,6 +1196,7 @@ By running this script, we ensure that no detector configuration is missed in th
 | EE (Electromagnetic Endcap)        | 54,792,192   |
 | HE Silicon (Hadronic Endcap - Silicon) | 44,255,232   |
 | HE Scintillator (Hadronic Endcap - Scintillator) | 6,471,360    |
+| Total DetIds | 105,518,784 |
 
 
 #### Output (from Step A)
@@ -1905,7 +1906,7 @@ After successful validation, this step produces:
 These outputs are automatically saved when running the producer, and are used as trusted inputs for downstream modules, or analysis.
 
 
-#### Total Validated DetIds
+#### Total Validated DetIds Geometery Version V17
 
 | Subdetector      | Count        |
 |------------------|--------------|
