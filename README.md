@@ -1900,7 +1900,7 @@ In this step, we take the list of all possible DetIds created earlier (from Step
 After successful validation, this step produces:
 
 - `valid_detID_all_feature.csv` — List of all validated and accepted DetIds
-- `detid_data_all_feature.db` — SQLite database (produced via CMSSW tools or custom DB writer module)
+- `detid_data_all_feature.db` — SQLite database
 
 These outputs are automatically saved when running the producer, and are used as trusted inputs for downstream modules, or analysis.
 
